@@ -102,7 +102,7 @@
 | 受控发布通道 | 开发成果进入生产只能走 `build-prod.ps1`、`install.ps1`/`upgrade.ps1`、版本化迁移和健康检查 | 防止复制源码、复制开发库、执行交接包或手工 SQL 进入生产 |
 | 开源合规边界 | 开发包固定 runtime manifest/NOTICE，生产包固定 runtime manifest/依赖 manifest/NOTICE，并记录来源、版本、许可证和 SHA256 | 防止来源不明或高风险许可证进入发行包 |
 | 签收仓库基线 | 签收前必须明确提交哈希；如签收未提交工作区，必须生成覆盖 Markdown、JSON Schema 和标准样例的路径/SHA256 manifest | 防止外部 AI 使用未确认或漂移的叙述/机器契约作为编码依据 |
-| 签收前预检命令包 | 签收前必须复查 Git 状态、README 索引、Markdown 引用、Schema/样例及内嵌副本、全文件 manifest、源码目录、签收状态和忽略规则 | 防止带着断裂索引、漂移契约、错误基线或误建源码目录进入 S1 |
+| 签收前预检命令包 | 签收前必须复查 Git 状态、README 索引与编号、Markdown 引用与表格结构、Schema/样例及内嵌副本、全文件 manifest、源码目录、签收状态、忽略规则和 Git 差异格式 | 防止带着断裂索引、损坏表格、漂移契约、错误基线、空白错误或误建源码目录进入 S1 |
 | 签收前最终审查表 | 签收前必须逐项确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制 | 防止维护者只确认“能跑代码”，却没有接受关键产品约束 |
 | P0 代码生成范围 | 单表 CRUD，不做流程、报表、多表复杂关系 | 保证第一条闭环可落地 |
 | P0 API 并发与重复提交 | 使用唯一约束、version 乐观锁、状态条件更新和事务内关系保存，不引入普通 CRUD Redis 锁或通用 Idempotency-Key | 防止覆盖更新、重复关系和临场增加基础设施 |
@@ -122,7 +122,7 @@
 | 文档验证日志 | 阅读 `docs/documentation-verification-log.md` | 确认当前索引、引用、机器契约、P0 API/DDL、签收状态、目录状态和忽略规则检查结果 |
 | 编码启动签收包 | 阅读 `docs/coding-start-signoff-package.md` | 确认最终人工签收承诺，不用在 40 多份文档间来回寻找关键口径 |
 | 仓库基线确认 | 检查 `git status` 并确定签收依据 | 确认签收的是已提交文档快照；如签收未提交工作区，确认 manifest 生成时间、文件数量、纳入范围和 SHA256 清单，覆盖全部机器契约 |
-| 签收前预检 | 执行 `docs/coding-start-signoff-package.md` 的预检命令包 | 确认索引、引用、目录状态、签收状态和忽略规则可复查 |
+| 签收前预检 | 执行 `docs/coding-start-signoff-package.md` 的预检命令包 | 确认索引与编号、引用与表格、机器契约、目录状态、签收状态、忽略规则和 Git 差异格式可复查 |
 | 签收前最终审查 | 逐项确认 `docs/coding-start-signoff-package.md` 第 3.2 节 | 确认进入 S1 前已接受产品、技术、AI、安全、合规、发布、S1 和变更控制约束 |
 | 编码启动签收记录 | 更新或明确确认 `docs/coding-start-signoff.md` | 把“允许开始 S1”变成可追踪记录 |
 

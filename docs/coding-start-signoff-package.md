@@ -42,7 +42,7 @@
 
 | 顺序 | 动作 | 产物 | 失败时处理 |
 | --- | --- | --- | --- |
-| 1 | 重跑签收前预检命令包 | Git 状态、索引、引用、源码目录、签收状态、忽略规则结果 | 修订文档或基线说明，继续留在文档阶段 |
+| 1 | 重跑签收前预检命令包 | Git 状态、索引与编号、引用与表格、机器契约、manifest、源码目录、签收状态、忽略规则和 Git 差异格式结果 | 修订文档或基线说明，继续留在文档阶段 |
 | 2 | 确认签收仓库基线 | 提交哈希，或签收文档 manifest 的生成时间、文件数量和纳入范围 | 不得签收 |
 | 3 | 确认签收前最终审查表 | 第 3.2 节全部审查域均有明确接受结论 | 不得签收 |
 | 4 | 更新 `docs/coding-start-signoff.md` | 签收结论、S1 许可、签收人、日期、基线、最终审查表和全部签收项 | 不得编码 |
@@ -63,7 +63,7 @@
 | 5 | `docs/pre-coding-reader-test.md` | 新维护者或外部 AI 是否能理解边界 |
 | 6 | `docs/pre-coding-reader-test-results.md` | 当前读者测试是否通过 |
 | 7 | `docs/requirements-traceability-matrix.md` | 原始产品要求是否均已有文档证据 |
-| 8 | `docs/documentation-verification-log.md` | 索引、引用、签收状态、目录状态是否可复查 |
+| 8 | `docs/documentation-verification-log.md` | 索引与编号、引用与表格、机器契约、签收状态、目录状态、忽略规则和 Git 差异格式是否可复查 |
 | 9 | `docs/s1-implementation-work-order.md` | S1 具体允许和禁止什么 |
 | 10 | `docs/coding-start-signoff.md` | 是否正式签收 |
 
@@ -74,13 +74,15 @@
 | 预检项 | 命令或动作 | 期望结果 |
 | --- | --- | --- |
 | Git 状态 | `git status --short` | 明确哪些文件已修改、未跟踪或待提交；用于填写签收基线 |
-| README 索引 | 执行本文下方 README 索引检查命令 | `MissingFromIndex=0`、`MissingFiles=0` |
+| README 索引与编号 | 执行本文下方 README 索引检查命令 | `MissingFromIndex=0`、`MissingFiles=0`、`ReadmeNumbering=continuous` |
 | Markdown 引用 | 执行本文下方 Markdown 引用检查命令 | `MissingMarkdownRefs=0` |
+| Markdown 表格结构 | 执行本文下方 Markdown 表格结构检查命令 | `TableIssues=0` |
 | 签收文档 manifest | 执行本文下方签收文档 manifest 生成命令 | 输出 `docs` 目录下每个文件的相对路径、SHA256、大小和更新时间；必须包含 Markdown、JSON Schema 和标准样例，用于签收未提交工作区 |
 | JSON 机器契约 | 执行本文下方 Schema/样例及内嵌副本检查 | 两个样例均为 `valid`，`install-example-sync=true`、`install-schema-sync=true` |
 | 源码目录 | `Test-Path backend, frontend, scripts, config` 或等价检查 | 签收前应为未创建，除非已有明确授权说明 |
 | 签收状态 | 执行本文下方签收状态检查命令 | 签收前应显示未签收；签收时必须补齐签收基线 |
 | 忽略规则 | 检查 `.gitignore` | `reference/`、runtime、data、logs、package、local 配置等已忽略 |
+| Git 差异格式 | 执行本文下方 Git 差异格式检查命令 | `GitDiffCheck=passed`；不得有空白错误 |
 
 签收状态检查：
 
@@ -95,10 +97,13 @@ $actual = Get-ChildItem docs -Recurse -Filter *.md | ForEach-Object { (Resolve-P
 $indexed = Select-String -Path docs\README.md -Pattern '^\| \d+ \| `([^`]+)`' | ForEach-Object { $_.Matches[0].Groups[1].Value } | Sort-Object
 $missingFromIndex = @($actual | Where-Object { $_ -notin $indexed -and $_ -ne 'README.md' })
 $missingFiles = @($indexed | Where-Object { $_ -notin $actual })
+$nums = Select-String -Path docs\README.md -Pattern '^\| (\d+) \|' | ForEach-Object { [int]$_.Matches[0].Groups[1].Value }
+$numberDiff = @(Compare-Object (1..$nums.Count) $nums)
 'MissingFromIndex=' + $missingFromIndex.Count
 'MissingFiles=' + $missingFiles.Count
 'ActualDocs=' + $actual.Count
 'IndexedDocs=' + $indexed.Count
+if ($numberDiff.Count -eq 0) { 'ReadmeNumbering=continuous; Count=' + $nums.Count } else { 'ReadmeNumbering=invalid; Diff=' + $numberDiff.Count }
 ```
 
 Markdown 引用检查：
@@ -117,6 +122,64 @@ foreach ($file in $files) {
   }
 }
 'MissingMarkdownRefs=' + $missing.Count
+```
+
+Markdown 表格结构检查；使用开发包已固定的 Node.js，不安装额外依赖。检查器忽略 fenced code block，按未转义且不在行内代码中的 `|` 切分单元格：
+
+```powershell
+@'
+const fs = require('fs');
+const path = require('path');
+
+function walk(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    return entry.isDirectory() ? walk(full) : (full.endsWith('.md') ? [full] : []);
+  });
+}
+
+function splitRow(line) {
+  const text = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+  const cells = [''];
+  let inCode = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '\\' && i + 1 < text.length) cells[cells.length - 1] += char + text[++i];
+    else if (char === '`') { inCode = !inCode; cells[cells.length - 1] += char; }
+    else if (char === '|' && !inCode) cells.push('');
+    else cells[cells.length - 1] += char;
+  }
+  return cells.map((cell) => cell.trim());
+}
+
+const issues = [];
+for (const file of walk('docs')) {
+  const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+  let fenced = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*```/.test(lines[i])) { fenced = !fenced; continue; }
+    if (fenced || !/^\s*\|.*\|\s*$/.test(lines[i])) continue;
+    const start = i;
+    const block = [];
+    while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) block.push(lines[i++]);
+    i--;
+    if (block.length < 2) continue;
+    const header = splitRow(block[0]);
+    const separator = splitRow(block[1]);
+    if (separator.length !== header.length || !separator.every((cell) => /^:?-{3,}:?$/.test(cell))) {
+      issues.push(`${file}:${start + 1}: invalid table separator`);
+      continue;
+    }
+    block.forEach((line, offset) => {
+      const count = splitRow(line).length;
+      if (count !== header.length) issues.push(`${file}:${start + offset + 1}: expected ${header.length} cells, got ${count}`);
+    });
+  }
+}
+
+console.log('TableIssues=' + issues.length);
+if (issues.length) { console.log(issues.join('\n')); process.exit(1); }
+'@ | node -
 ```
 
 签收文档 manifest 生成：
@@ -156,6 +219,13 @@ console.log('install-example-sync=' + equal(example, fileExample));
 console.log('install-schema-sync=' + equal(schema, fileSchema));
 if (!equal(example, fileExample) || !equal(schema, fileSchema)) process.exit(1);
 '@ | node -
+```
+
+Git 差异格式检查：
+
+```powershell
+git diff --check
+if ($LASTEXITCODE -eq 0) { 'GitDiffCheck=passed' } else { throw 'git diff --check failed' }
 ```
 
 签收基线规则：

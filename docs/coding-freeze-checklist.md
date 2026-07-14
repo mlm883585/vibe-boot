@@ -33,10 +33,10 @@
 | 编码后变更控制 | 编码开始后按 C0-C4 处理新增请求、范围变化和阶段推进 | `docs/post-coding-change-control.md` |
 | 编码前读者测试结果 | 第一轮独立审阅原始结论为 FAIL；十项阻塞修订后，第二轮题库和机器契约复测通过，但不替代维护者签收 | `docs/pre-coding-reader-test-results.md` |
 | 需求追踪矩阵 | 原始产品要求已映射到当前文档证据 | `docs/requirements-traceability-matrix.md` |
-| 文档验证日志 | 当前文档索引、引用、签收状态、目录状态和忽略规则已有验证快照 | `docs/documentation-verification-log.md` |
+| 文档验证日志 | 当前文档索引与编号、引用与表格、机器契约、签收状态、目录状态、忽略规则和 Git 差异格式已有验证快照 | `docs/documentation-verification-log.md` |
 | 编码启动签收包 | 最终人工确认入口已压缩产品、技术、AI、S1 和变更控制承诺 | `docs/coding-start-signoff-package.md` |
 | 签收仓库基线 | 进入 S1 前必须明确提交哈希；如签收未提交工作区，必须生成覆盖全部 Markdown、JSON Schema 和标准样例的路径/SHA256 manifest，未纳入基线的文件不得作为编码依据 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` |
-| 签收前预检命令包 | 进入 S1 前必须执行 Git 状态、README 索引、Markdown 引用、签收文档 manifest、源码目录、签收状态和忽略规则检查 | `docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` |
+| 签收前预检命令包 | 进入 S1 前必须执行 Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON 机器契约、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式检查 | `docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` |
 | 敏感文件忽略边界 | 真实 local/prod/install 配置、`.env`、TLS/私钥和 backup 必须忽略，`.example` 模板必须可提交 | `.gitignore`、`docs/security-governance.md` |
 | 签收前最终审查表 | 进入 S1 前必须逐项确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` |
 | 文档收束规则 | 后续优先修订已有文档，新增文档必须有独立决策、证据或验收价值 | `docs/documentation-maintenance-guide.md`、`docs/coding-start-signoff-package.md` |

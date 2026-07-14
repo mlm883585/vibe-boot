@@ -121,7 +121,7 @@
 | S1 工作令不是开工许可 | 工作令只是施工说明，签收记录和精确启动口令 `开始 S1 工程骨架编码` 才是授权来源；口令不得带句号、冒号或额外后缀 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
 | S1 创建源码目录前必须先持久化准入并开工检查 | 精确口令后先写 **docs/stage-records/S1-admission.md**，再输出签收、口令、准入路径、目录基线、范围和 `admissionCard.result`；任一失败不得编码 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 需人工签收 |
 | 签收仓库基线必须明确 | 进入 S1 前必须明确提交哈希；如签收未提交工作区，必须生成包含路径和 SHA256 的签收文档 manifest；未纳入签收基线的草稿不得作为编码依据 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
-| 签收前预检必须可执行 | 进入 S1 前必须复查 Git 状态、README 索引、Markdown 引用、签收文档 manifest、源码目录、签收状态和忽略规则；任一失败不得签收 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` | 需人工签收 |
+| 签收前预检必须可执行 | 进入 S1 前必须复查 Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON 机器契约、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式；任一失败不得签收 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` | 需人工签收 |
 | 签收前最终审查必须逐项确认 | 进入 S1 前必须确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制；`docs/coding-start-signoff.md` 第 4 节必须包含并签收“签收前最终审查表已逐项确认”；最终审查表不能替代正式签收 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/implementation-readiness-audit.md` | 需人工签收 |
 | 模糊表达不能等价签收 | “同意”“可以开始”“按文档做”等表达不构成签收；等价确认必须包含签收包接受、S1 范围、最终审查表全部确认、全部签收项、签收人、签收日期和签收基线 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/pre-coding-reader-test.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
 | S2-S7 阶段任务分解不是开工许可 | 阶段任务文档只是施工依据，必须前置阶段完成、通过门禁，并由维护者明确启动对应阶段 | `docs/s2-task-breakdown.md`、`docs/s3-task-breakdown.md`、`docs/s4-task-breakdown.md`、`docs/s5-task-breakdown.md`、`docs/s6-task-breakdown.md`、`docs/s7-demo-acceptance.md` | 已覆盖 |
@@ -156,7 +156,7 @@
 | 是否可以直接开始编码 | 否，仍需签收 |
 | 未签收前允许做什么 | 继续修订和审计文档 |
 | 签收依据是什么 | 必须是明确提交哈希；如签收未提交工作区，必须是签收文档 manifest 的生成时间、文件数量、纳入范围和 SHA256 清单，并覆盖 Markdown 与 JSON 机器契约 |
-| 签收前要跑什么预检 | Git 状态、README 索引、Markdown 引用、签收文档 manifest、源码目录、签收状态和忽略规则 |
+| 签收前要跑什么预检 | Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON Schema/样例及内嵌副本、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式 |
 | 签收前还要确认什么 | 必须逐项确认签收包第 3.2 节最终审查表；不能用模糊同意替代 |
 | 签收后第一步是什么 | 在维护者明确说出精确启动口令 `开始 S1 工程骨架编码` 后，先输出 S1 开工检查；通过后才只能按 S1 工作令做工程骨架 |
 | 阶段怎么结束 | 必须输出阶段关闭证据包；证据包通过后只是申请关闭当前阶段，不能自动进入下一阶段 |

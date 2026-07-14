@@ -31,7 +31,7 @@
 | Git 差异格式 | 通过 | `git diff --check` 返回成功；LF/CRLF 提示属于 Windows 工作区换行转换提示，未发现空白错误 |
 | 签收状态 | 通过 | `docs/coding-start-signoff.md` 当前仍为未签收 |
 | 签收仓库基线 | 待签收 | README、签收包、签收记录、冻结清单、准入审计、需求追踪和维护规则已要求签收前明确提交哈希；如签收未提交工作区，必须生成包含路径和 SHA256 的签收文档 manifest；当前仍未签收，不得把未确认草稿作为编码依据 |
-| 签收前预检命令包 | 通过 | 2026-07-14 已重跑 Git 状态、README 索引、Markdown 引用、表格结构、签收文档 manifest、源码目录、签收状态、忽略规则和 `git diff --check`；若基线内容再变更，签收前必须再次重跑 |
+| 签收前预检命令包 | 通过 | 2026-07-14 已重跑 Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON Schema/样例及内嵌副本、签收文档 manifest、源码目录、签收状态、忽略规则和 `git diff --check`；若基线内容再变更，签收前必须再次重跑 |
 | 签收前最终审查表 | 通过 | README、签收包、签收记录、准入审计和需求追踪已要求签收前逐项确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制；签收记录第 4 节已把最终审查表逐项确认列为强制签收项；最终审查表不替代正式签收 |
 | 当前编码判定 | 通过 | README、签收包、签收记录、准入审计和需求追踪矩阵已明确：当前只满足签收前审查，不满足直接编码；仍缺签收基线、最终审查确认、签收记录、精确启动口令和 S1 开工检查 |
 | 阶段关闭证据包 | 通过 | README、MVP 路线、编码后变更控制、质量门禁和需求追踪矩阵已要求每个阶段完成时记录交付物、验证结果、越界检查、文档同步、残余风险和下一阶段请求；证据包不自动授权下一阶段 |
@@ -182,7 +182,17 @@ if ($missing.Count -eq 0) { 'MissingMarkdownRefs=0' } else { $missing | Format-T
 | --- | --- |
 | MissingMarkdownRefs | 0 |
 
-### 4.3.1 签收文档 manifest 生成检查
+### 4.3.1 Markdown 表格结构检查
+
+执行 `docs/coding-start-signoff-package.md` 第 3.1 节的 Markdown 表格结构检查脚本。该脚本忽略 fenced code block，按未转义且不在行内代码中的 `|` 切分单元格，并校验表头分隔行和每行单元格数量。
+
+结果：
+
+| 输出 | 结果 |
+| --- | --- |
+| TableIssues | 0 |
+
+### 4.3.2 签收文档 manifest 生成检查
 
 ```powershell
 $manifest = Get-ChildItem docs -Recurse -File | Sort-Object FullName | ForEach-Object {
@@ -206,7 +216,7 @@ $manifest = Get-ChildItem docs -Recurse -File | Sort-Object FullName | ForEach-O
 
 说明：该检查只证明签收文档 manifest 的生成命令可执行。当前仍未签收；如维护者选择签收未提交工作区，还必须在签收记录中写明 manifest 生成时间、文件数量、纳入范围和 manifest 输出保存位置。4 个 JSON 机器契约不得从清单排除。
 
-### 4.3.2 JSON 机器契约检查
+### 4.3.3 JSON 机器契约检查
 
 ```powershell
 npx --yes ajv-cli@5.0.0 validate --spec=draft2020 --strict=true -s docs/contracts/codegen-meta-model-v1.schema.json -d docs/contracts/examples/customer-visit-meta-model-v1.json
@@ -281,6 +291,21 @@ $unexpectedIgnored = $examples | Where-Object { git check-ignore $_ }
 | 输出 | 结果 |
 | --- | --- |
 | GitignoreRequiredPatterns | present |
+
+### 4.6.1 Git 差异格式检查
+
+```powershell
+git diff --check
+if ($LASTEXITCODE -eq 0) { 'GitDiffCheck=passed' } else { throw 'git diff --check failed' }
+```
+
+结果：
+
+| 输出 | 结果 |
+| --- | --- |
+| GitDiffCheck | passed |
+
+说明：Windows 工作区可能提示 Git 后续将 LF 转换为 CRLF；只要命令退出码为 0 且没有空白错误，就不属于本项失败。
 
 ### 4.7 禁止项搜索
 
@@ -742,4 +767,4 @@ rg -n "优先 BCrypt|返回 Token \||auth \| token|空 Token Secret|Token Secret
 
 ## 7. 一句话总结
 
-截至 2026-07-14，Vibe Boot 的 Markdown 索引、引用、JSON 机器契约、P0 API/DDL、签收 manifest、包信任、ACL、高风险迁移、九资源升级恢复、S2-S4 测试强度、S7 故障矩阵和开工闸门均可复查；技术材料已达到可提交维护者签收的实现基线，但项目仍处于文档优先阶段，未签收前不能创建源码目录或开始 S1 编码。
+截至 2026-07-14，Vibe Boot 的 Markdown 索引与编号、引用与表格结构、JSON 机器契约、Git 差异格式、P0 API/DDL、签收 manifest、包信任、ACL、高风险迁移、九资源升级恢复、S2-S4 测试强度、S7 故障矩阵和开工闸门均可复查；技术材料已达到可提交维护者签收的实现基线，但项目仍处于文档优先阶段，未签收前不能创建源码目录或开始 S1 编码。

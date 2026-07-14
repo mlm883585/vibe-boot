@@ -126,7 +126,7 @@ rg -n "C0|C1|C2|C3|C4|编码后变更控制" docs/post-coding-change-control.md 
 rg -n "读者测试结果|pre-coding-reader-test-results|Reader Test" docs/README.md docs/pre-coding-reader-test-results.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md
 rg -n "签收包|coding-start-signoff-package|编码启动签收包" docs/README.md docs/coding-start-signoff-package.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md
 rg -n "签收基线|仓库基线|提交哈希|工作区文档范围|签收文档 manifest|SHA256|ManifestFiles|未纳入签收基线" docs/README.md docs/coding-start-signoff-package.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md docs/requirements-traceability-matrix.md docs/documentation-verification-log.md
-rg -n "签收前预检|预检命令包|MissingFromIndex|MissingMarkdownRefs|ManifestFiles|SourceDirs|git status --short" docs/README.md docs/coding-start-signoff-package.md docs/coding-freeze-checklist.md docs/documentation-maintenance-guide.md docs/documentation-verification-log.md docs/implementation-readiness-audit.md docs/requirements-traceability-matrix.md
+rg -n "签收前预检|预检命令包|MissingFromIndex|ReadmeNumbering|MissingMarkdownRefs|TableIssues|ManifestFiles|SourceDirs|GitDiffCheck|git status --short|git diff --check" docs/README.md docs/coding-start-signoff-package.md docs/coding-freeze-checklist.md docs/documentation-maintenance-guide.md docs/documentation-verification-log.md docs/implementation-readiness-audit.md docs/requirements-traceability-matrix.md
 rg -n "签收前最终审查|最终审查表|第 3.2 节|产品范围、技术栈、Windows 优先" docs/README.md docs/coding-start-signoff-package.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md docs/requirements-traceability-matrix.md docs/pre-coding-reader-test.md docs/pre-coding-reader-test-results.md docs/documentation-verification-log.md
 rg -n "需求追踪|requirements-traceability-matrix|原始产品要求" docs/README.md docs/requirements-traceability-matrix.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md
 rg -n "文档验证日志|documentation-verification-log|MissingMarkdownRefs|ReadmeNumbering" docs/README.md docs/documentation-verification-log.md docs/coding-start-signoff.md docs/coding-freeze-checklist.md docs/implementation-readiness-audit.md
@@ -157,7 +157,7 @@ rg -n "开发工作区|本地受控执行器|服务端任意文件写入|任意 
 | 冻结清单 | 进入编码前需要人工确认的事项完整 |
 | 签收记录 | `docs/coding-start-signoff.md` 明确当前是否允许开始 S1 |
 | 签收仓库基线 | 签收记录必须明确提交哈希；如签收未提交工作区，必须明确 manifest 生成时间、`ManifestFiles` 数量、纳入范围和 SHA256 清单，并覆盖 `docs/` 下全部机器契约 |
-| 签收前预检命令 | Git 状态、README 索引、Markdown 引用、签收文档 manifest、源码目录、签收状态和忽略规则检查必须可执行 |
+| 签收前预检命令 | Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON 机器契约、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式检查必须可执行 |
 | 签收前最终审查表 | `docs/coding-start-signoff-package.md` 第 3.2 节必须逐项确认，但不得替代 `docs/coding-start-signoff.md` 签收记录 |
 | 启动口令 | 精确文本必须保持为 `开始 S1 工程骨架编码`，不得添加句号、冒号或额外后缀 |
 | 等价签收 | 等价确认必须包含签收包接受、S1 范围、最终审查表全部确认、全部签收项、签收人、签收日期和签收基线；模糊表达不得视为签收 |
