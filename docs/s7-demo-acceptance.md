@@ -29,11 +29,11 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | S1 工程骨架 | 后端、前端、脚本骨架已按 `docs/s1-task-breakdown.md` 完成 |
 | S2 基础后台 | 登录、用户、角色、菜单、字典、日志已按 `docs/s2-task-breakdown.md` 完成 |
 | S3 模型网关 | 模型配置、连接测试、用量记录已按 `docs/s3-task-breakdown.md` 完成 |
-| AI 工作台 | 任务、上下文、计划、风险、摘要已按 `docs/ai-workbench-task-breakdown.md` 完成 |
-| S4 代码生成 | 单表 CRUD 生成能力已按 `docs/s4-task-breakdown.md` 完成 |
+| S4 AI 工作台子任务 | 任务、上下文、计划、风险、摘要已按 `docs/ai-workbench-task-breakdown.md` 完成 |
+| S4 代码生成子任务 | 单表 CRUD 生成能力已按 `docs/s4-task-breakdown.md` 完成 |
 | S5 开发包 | doctor、dev-start、dev-stop、setup-model 已按 `docs/s5-task-breakdown.md` 完成 |
 | S6 生产包 | build-prod、install、status、backup、restore 已按 `docs/s6-task-breakdown.md` 完成 |
-| 阶段签收与启动 | S1-S6 已按顺序完成并通过门禁，维护者明确启动 S7 验收；本文本身不是当前编码许可 |
+| 阶段签收与启动 | S6 阶段关闭证据已通过，`stageAdmission` 记录完整，并收到精确口令 `开始 S7 MVP 演示验收`；本文本身不是当前验收许可 |
 | 演示规格 | `docs/customer-visit-demo-spec.md` 已确认不再临场扩展 |
 | AI 使用路径 | 首次使用引导、企业用户路径和外部 AI 交接包已按 `docs/ai-tool-usage-guide.md` 完成 |
 
@@ -48,7 +48,7 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 销售人员 | 新增、编辑、查询自己的客户拜访记录 |
 | 销售主管 | 查看全部客户拜访记录，验证数据范围说明 |
 
-如果 P0 尚未完整实现数据权限，演示必须明确标注“数据权限已定义，当前能力需等待基础能力接入后完全生效”，不得以管理员账号替代所有角色验收。
+S7 不接受数据权限降级说明。客户拜访记录必须已经接入 S2 数据范围扩展点，并用销售 A、销售 B、销售主管和管理员四类账号完成隔离验证；任一角色结果不符即判定 S7 失败，不得用管理员账号或“后续接入”说明替代。
 演示必须区分企业管理员、实施人员和 Java 开发者：企业管理员不应直接面对源码目录或命令行；实施人员负责交接和回填；Java 开发者只在开发工作区或外部 AI Coding 工具中处理源码。
 
 ## 5. 演示环境
@@ -56,13 +56,17 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 环境项 | 要求 |
 | --- | --- |
 | 开发机器 | Windows 10/11 或 Windows Server 2019+ |
-| 生产测试环境 | 另一台 Windows 机器，或同机干净目录模拟 |
+| 生产测试环境 | 独立、可还原快照的全新 Windows Server 2022 x64 VM，系统盘与安装盘均为 NTFS；同机目录、开发机或已安装旧 runtime 的机器不计入 S7 证据 |
+| PowerShell | 必须用系统自带 Windows PowerShell 5.1 执行全部生产脚本；PowerShell 7 只可做补充验证 |
+| 快照基线 | 只预装受信发布证书链和系统补丁，不预装 JDK/Maven/Node/Vibe Boot；每个全新安装、失败安装和升级回滚用例前恢复同一快照并记录快照 ID |
 | JDK | 使用开发包或生产包内置 JDK 17 runtime |
 | Maven | 开发包内置 Maven 3.8.x，并默认配置国内镜像 |
-| Node.js | 开发包内置 Node.js 20.19+ LTS，并默认配置国内 npm 镜像 |
+| Node.js | 开发包内置 Node.js 24.x LTS（基线 24.18.0），并默认配置国内 npm 镜像 |
 | 网络模式 | 至少演示 online 或 mirror 模式；若声明内网包能力，必须展示缓存清单和缺失依赖诊断 |
-| MySQL | MySQL 8，连接信息写入本地 ignored 配置 |
-| Redis | Redis 7 或兼容版本，生产可连接外部实例 |
+| MySQL | 开发使用 MySQL 8；生产测试连接独立测试实例的 MySQL 8，运行/迁移账号分离并开启受信 CA、主机名校验 TLS |
+| Redis | 开发可演示内存降级或外部 Redis；生产连接独立 Redis 7 测试实例，使用专用 ACL 用户、实例 key 前缀和受信 CA TLS |
+| MySQL Client | 按 install.json 指向受控 `mysql.exe/mysqldump.exe` 8.x，预检记录文件 SHA256 和 `--version`；不得从安装脚本联网下载 |
+| 包信任 | 发布签名证书链已进入 VM 受信存储；signer thumbprint 通过包外受控渠道提供并逐字核对，不从 zip/manifest 读取信任根 |
 | 模型服务 | OpenAI 兼容接口，API Key 不进入 Git 和生产默认包 |
 | 日志目录 | 脚本、后端、前端、安装日志统一落入 `logs/` |
 
@@ -73,7 +77,7 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 1 | 准备开发包 | 解压 Vibe Boot 开发包 | 目录结构完整，包含 `runtime/`、`scripts/`、`docs/` | 解压目录截图或目录清单 |
 | 2 | 环境诊断 | 执行 `scripts/doctor.ps1` | 输出 JDK、Maven、Node、MySQL、Redis、端口、镜像检查结果 | `logs/scripts/doctor-*.log` |
 | 3 | 启动开发模式 | 执行 `scripts/dev-start.ps1` | 后端、前端和必要开发服务启动 | 启动日志和访问地址 |
-| 4 | 配置模型 | 执行 `scripts/setup-model.ps1` 或进入模型配置页面 | 模型连接测试成功，密钥脱敏展示 | 模型配置记录和连接测试日志 |
+| 4 | 配置模型 | 先执行 `scripts/setup-model.ps1` 初始化外置主密钥，再进入模型配置页面录入供应商 API Key | API Key 以 AES-GCM 密文入库，页面只显示“已配置”，模型连接测试成功 | 模型配置记录、数据库非明文检查和连接测试日志 |
 | 5 | 登录后台 | 使用管理员账号登录 | 进入管理端首页，菜单可见 | 登录截图或操作日志 |
 | 6 | 打开 AI 工作台 | 新建 AI 任务 | 任务进入 `draft` 或 `planned` 状态 | AI 任务编号 |
 | 7 | 输入需求 | 输入客户拜访记录原始需求 | AI 提出澄清问题 | 澄清记录 |
@@ -101,7 +105,7 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 删除记录 | 使用逻辑删除，删除后列表不再展示 |
 | 菜单权限 | 菜单和按钮权限标识与 `docs/customer-visit-demo-spec.md` 一致 |
 | 接口权限 | 未授权访问应返回统一错误码，不允许匿名写入 |
-| 数据权限 | 销售人员和主管的数据范围按当前实现能力展示或明确标注限制 |
+| 数据权限 | 销售人员 A 只能看本人创建或负责的记录，销售人员 B 不能看到 A 的记录，销售主管和管理员能看全部演示数据；任一不符即失败 |
 
 ## 8. 质量验收矩阵
 
@@ -117,11 +121,36 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 代码生成 | Java、Vue、SQL、权限菜单均生成 | 不能宣称超过传统低代码 |
 | 验证门禁 | Maven 和 npm 验证结果真实记录 | 不能把任务标记为完成 |
 | 本地预览 | 客户拜访记录 CRUD 可用 | 不能进入生产打包验收 |
-| 生产安装 | build-prod、install、status 可用 | 不能宣称生产可交付 |
+| 生产安装 | 版本化 build-prod、带外 signer/Authenticode/package manifest、install、LocalService/service SID ACL、status 可用 | 不能宣称生产可交付 |
 | 认证与传输 | PBKDF2 参数、登录限流、HttpOnly Cookie、CSRF、LAN HTTPS 和回环管理端口可验证 | 不能宣称生产认证安全边界成立 |
 | 发布通道 | 生产环境只接收 build-prod 产物、install/upgrade 和迁移流程 | 不能宣称开发到生产闭环成立 |
 | 文件基础 | 文件管理页可验证白名单上传、鉴权下载、图片预览、危险类型拒绝、内部路径隐藏和删除失败状态 | 不能宣称 P0 基础服务完整 |
-| 备份恢复 | 停服备份、敏感资产保护、同版本恢复和升级失败整套回滚有可验证路径 | 不能宣称可运维 |
+| 备份恢复 | 停服备份、secret 排除、模型密钥指纹、同版本恢复、Redis 会话失效和带原子状态的升级整套回滚可验证 | 不能宣称可运维 |
+
+### 8.1 生产故障注入矩阵
+
+除正常路径外，下列用例全部是 S7 必跑项。每次从第 5 节快照或明确的旧版本基线开始，使用测试专用数据库/Redis 命名空间；注入点由测试构建参数或受控文件锁制造，不得通过修改正式脚本跳过保护逻辑。
+
+| 用例 | 注入点 | 必须结果 | 最小证据 |
+| --- | --- | --- | --- |
+| F01 首入口篡改 | 修改 install.ps1 任意字节 | OS-only bootstrap 在执行脚本前拒绝，安装根目录、SCM、数据库均无变化 | Authenticode 输出、目录/服务/迁移版本前后快照 |
+| F02 包文件篡改 | 修改 manifest 覆盖的 jar/lib/runtime 文件 | trusted launcher/目标脚本在任何写盘或服务动作前拒绝 | signer、manifest、文件 SHA256 与 operationId 日志 |
+| F03 清单路径攻击 | 加入 `..`、绝对/UNC/ADS、大小写重复、reparse/hardlink 或清单外文件 | 包集合校验失败，不创建服务、不连数据库写入 | 每类至少一个反例及失败码 |
+| F04 配置攻击 | install.json 含重复/未知/近似大小写字段、注释、尾逗号或非法跨字段组合 | Java 权威校验失败且无副作用 | 输入 hash、JSON Pointer 错误、SCM/DB 无变化 |
+| F05 ACL 越权 | 以普通用户及 `NT SERVICE\VibeBoot` 尝试创建/替换 app/runtime/service/scripts/notices/db/config/operations 中的文件，并验证 `operations/` 与 `data/` 为兄弟目录 | 全部 Access Denied；服务仅能写 data/logs，能读必要 config/secrets；安装根及每个子目录均无继承且 ACE 与矩阵一致 | `icacls`、目录关系、服务身份、正反写入结果 |
+| F06 数据服务 TLS | 错 CA、过期证书、主机名不匹配及 Redis 明文端口 | install/preflight 阻断，不允许 trust-all 或降级明文 | MySQL/Redis 四类失败日志与成功 TLS 协议证据 |
+| F07 备份客户端 | 缺失、版本非 8.x、hash 与预检不一致或路径为 reparse point | 安装/备份在数据库动作前阻断，不临时联网下载替代品 | client path/version/hash 与退出码 |
+| F08 高风险迁移 | 缺少开关、短语错误、列表 hash 变化或非交互执行 | 固定退出 44，schema 版本和数据不变；只有开关+当次精确短语+同一列表 hash 才可继续 | stdout JSON、stderr 摘要、Flyway history 前后快照 |
+| F09 提升原子性 | 对 app/runtime/service/scripts/notices/db/config-public/trusted-launcher/service-registration 每项分别在 live_moved 后和 next_promoted 后终止进程 | 重跑只按 state v2 恢复/继续；不会混用版本；维护闸门始终存在 | 18 个参数化用例的 state、资源 hash、SCM 快照 |
+| F10 状态损坏 | 截断、篡改 hash 或制造不可能 phase/resourceState 组合 | 保持维护闸门、停止服务、进入 failed_manual，不自动猜测 | 状态文件、服务状态、503 与人工证据路径 |
+| F11 迁移失败 | migrate 子进程启动后令 SQL 失败/终止 | migrationStarted=true，禁止只换 jar；用同一回滚点恢复程序、SCM、数据库、文件、配置并清 Redis | 新旧 schema、全部资源 hash、回滚 manifest、Redis 扫描结果 |
+| F12 readiness 超时 | 目标服务可启动但依赖健康失败超过 60 秒 | 不开放维护闸门，停止目标服务并整套回滚 | liveness/readiness 时间线、503、回滚后旧版 readiness |
+| F13 Redis 清理失败 | 回滚时拒绝 SCAN/UNLINK 或中断 TLS | 不写 rolled_back、不删除 maintenance.flag、不恢复业务流量 | Redis 错误、state、服务停止和 API 503 |
+| F14 闸门删除失败 | 锁定 maintenance.flag 或撤销管理员删除权 | completed 可记录但 API 继续 503，脚本返回非零并给出可重试操作 | state、ACL、503、重试成功记录 |
+| F15 初始管理员失败 | stdin 中断、两次密码不一致或 bootstrap 事务故障 | 不产生半个管理员/角色关系；全新安装注销本次服务并保留脱敏日志 | 用户/关系表快照、SCM 状态、日志 secret 扫描 |
+| F16 恢复版本/密钥 | 跨完整版本恢复、模型密钥指纹不符、Redis 存在共享应用 key | 默认阻断；显式 discard 只清模型密文；只 SCAN+UNLINK 本实例前缀，其他 key 不变 | manifest 判断、模型配置、前缀与非前缀 key 前后对比 |
+
+F09 的 18 个子用例不得只抽样 app/jar；资源列表的每一项和两个不可交换阶段都要覆盖。所有故障日志执行 secret 扫描，数据库密码、Redis 密码、TLS 私钥密码、初始管理员密码和模型主密钥出现任一明文即整体验收失败。
 
 ## 9. 不通过条件
 
@@ -136,6 +165,9 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 权限标识缺失 | 违反后台系统安全底线 |
 | 验证命令失败却显示通过 | 破坏质量门禁可信度 |
 | 生产包包含 API Key 或本地密码 | 违反密钥安全 |
+| 生产脚本/manifest 未签名、signer 从包内读取，或未签名测试包可生产安装 | 供应链信任不可成立 |
+| Procrun 使用 LocalSystem，目录继承未关闭，`operations/` 位于 `data/` 下，或普通用户/服务进程可修改 app/runtime/service/scripts/notices/db/config/operations | 高权限服务或可写父目录会破坏程序与升级状态可信性 |
+| 常驻服务持有迁移账号，或 MySQL/Redis 非回环明文连接 | 违反最小权限与传输安全 |
 | 生产 LAN 使用 HTTP、Token 进入 Web Storage、Cookie 写请求无 CSRF 或 Actuator 管理端口对外监听 | 违反认证与网络暴露底线 |
 | 上传接口接受路径穿越、伪装类型、超限文件，或响应暴露存储路径 | 任意文件写入或信息泄漏风险 |
 | 文件上传后自动进入模型上下文，或文档宣称已杀毒 | 违反数据最小化和能力真实性 |
@@ -144,7 +176,8 @@ S7 的目标不是展示更多功能，而是证明 Vibe Boot 的核心承诺成
 | 在生产执行外部 AI 交接包、补丁、临时 SQL 或 shell | 把开发/实施材料误用为生产发布 |
 | 安装失败后留下半成品服务且无清理提示 | 生产交付不可接受 |
 | 备份包缺少版本和配置摘要 | 后续恢复不可追踪 |
-| 备份 manifest 或日志包含配置值、密码、Token、API Key 或业务数据摘要 | 敏感信息泄漏 |
+| 备份包含 config/secrets、模型主密钥、密码或私钥，或 manifest/log 包含配置值、Token、API Key、业务摘要 | 敏感信息泄漏或密文与主密钥重新合并 |
+| 数据库恢复后保留本实例 Redis 会话/权限缓存，或用 FLUSHDB 清理共享 Redis | 前者产生旧授权，后者破坏其他应用数据 |
 | 跨版本恢复仅提示后继续，或迁移失败后只换回旧 jar | 程序、schema 和数据状态可能不一致 |
 
 ## 10. 演示输出包
@@ -156,7 +189,7 @@ S7 通过后，必须沉淀一份演示输出包，至少包含：
 | 演示记录 | 执行人、时间、环境、版本、模型供应商 |
 | AI 任务记录 | 需求、澄清、计划、风险、生成摘要 |
 | 角色视图证据 | 企业管理员、实施人员、Java 开发者和生产用户的入口、可见信息和禁止动作 |
-| 状态流转证据 | draft、clarifying、planned、waiting_confirm、handoff_ready、verifying、completed/failed/blocked 的实际记录或截图 |
+| 状态流转证据 | draft、clarifying、planned、waiting_confirm、handoff_ready、executing_external、verifying、completed/failed/blocked/cancelled/reverted 的实际记录或截图；未经过的分支说明触发方式 |
 | 外部 AI 交接包 | 阶段、目标、范围、禁止事项、风险、验证命令和输出格式 |
 | 生成文件清单 | Java、Vue、SQL、菜单、文档文件列表 |
 | 验证结果 | Maven、npm、doctor、build-prod、install、status、backup、restore 结果 |

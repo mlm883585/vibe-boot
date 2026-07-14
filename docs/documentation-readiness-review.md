@@ -6,7 +6,7 @@
 
 本文不是新的需求来源，也不是替代 `docs/implementation-readiness-audit.md`。它的作用是把“文档是否齐、约束是否清楚、仍需人工确认什么、哪些事情还不能做”整理成一份审计结论，供正式进入编码前复核。
 
-审计日期：2026-07-08。
+审计日期：2026-07-14。
 
 ## 2. 审计结论
 
@@ -23,14 +23,14 @@
 | 模块结构 | 通过 | `vibe-job` 已移出 S1，P0 模块边界已统一 |
 | 术语命名 | 通过 | 模块、目录、脚本、状态、权限、API、数据库命名已有统一规范 |
 | AI 工作台 | 通过 | P0 不做完整 IDE，只做受控计划、风险和摘要 |
-| 代码生成 | 通过 | 单表 CRUD、元模型、模板、权限、SQL 迁移边界清楚 |
+| 代码生成 | 通过 | 单表 CRUD、元模型、模板、权限、SQL 迁移边界清楚；Draft 2020-12 Schema 和客户拜访标准样例可机器校验 |
 | 文件基础服务 | 通过 | P0/S2 本地单文件范围、限制值、路径安全、权限、状态机、无杀毒声明和 AI 上下文边界清楚 |
 | Windows 开发包 | 通过 | doctor、dev-start、dev-stop、setup-model 任务已拆分 |
-| 生产安装包 | 通过 | build-prod、install、status、backup、restore 任务已拆分 |
+| 生产安装包 | 通过 | build-prod、install、status、backup、restore、首次信任引导、严格安装 Schema、九资源升级状态机和故障恢复任务已拆分 |
 | 受控发布通道 | 通过 | 开发成果只能通过 build-prod、install/upgrade、版本化迁移和健康检查进入生产 |
-| 模型数据安全 | 通过 | 模型调用前的数据分类、最小化、脱敏、权限过滤和出境风险提示已成文 |
-| 开源合规边界 | 通过 | 第三方依赖、runtime、工具来源、版本、许可证、NOTICE 和依赖 manifest 已纳入开发包和生产包验收 |
-| S7 演示 | 通过 | 客户拜访记录业务规格和端到端验收剧本已成文 |
+| 模型数据与出站安全 | 通过 | 模型调用前的数据分类、最小化、脱敏、权限过滤和出境风险提示，以及 API Base SSRF/DNS/TLS/重定向/2 MB 响应门禁已成文 |
+| 开源合规边界 | 通过 | 开发包 runtime manifest/NOTICE 与生产包 runtime manifest/依赖 manifest/NOTICE 的来源、版本、许可证和 SHA256 已纳入验收 |
+| S7 演示 | 通过 | 客户拜访记录端到端剧本、全新 Windows Server 2022 VM 基线和 F01-F16 故障矩阵已成文 |
 | 编码冻结 | 需人工确认 | `docs/coding-freeze-checklist.md`、签收文档 manifest 和签收前最终审查表需要维护者逐项确认 |
 
 结论：文档层面已经足以支撑 **S1 工程骨架编码准备**，但正式开工前仍需人工确认 P0/P1 范围冻结、Windows 优先、技术栈克制、签收基线、签收前最终审查表和 S1 起步策略。
@@ -77,10 +77,10 @@
 | --- | --- | --- |
 | 首版平台 | Windows 优先 | `docs/product-constraints.md`、`docs/windows-devkit-design.md` |
 | 架构形态 | 模块化单体 | `docs/vibe-boot-architecture.md`、`docs/module-design.md` |
-| 技术栈 | JDK 17、Spring Boot 3.5.16、Maven 3.8、MySQL 8、Redis、Node.js 20.19+ LTS、Vue 3.5.39、Vite 8.1.3、TypeScript 6.0.3、Element Plus 2.14.2、npm | ADR-0001 |
+| 技术栈 | JDK 17、Spring Boot 3.5.16、Maven 3.8、MySQL 8、Redis、Node.js 24.x LTS（基线 24.18.0）、Vue 3.5.39、Vite 8.1.3、TypeScript 6.0.3、Element Plus 2.14.2、Pinia 3.0.4、Vue Router 4.6.4、Axios 1.18.1、npm | ADR-0001 |
 | 权限框架 | Sa-Token 1.45.0 | ADR-0001 |
 | 数据库迁移 | Flyway | ADR-0001 |
-| Windows 服务 | WinSW | ADR-0001 |
+| Windows 服务 | Apache Commons Daemon Procrun 1.6.1 x64 | ADR-0001 |
 | API 文档 | Springdoc OpenAPI 2.8.17 | ADR-0001 |
 | 模板引擎 | Velocity 2.4.1 | ADR-0001 |
 | Lombok | P0 不引入，Java 类和生成模板使用显式 getter/setter 或 Java 原生能力 | ADR-0001、`docs/backend-implementation-spec.md` |
@@ -89,9 +89,9 @@
 | AI 用户入口 | 维护者用外部 AI Coding 工具，企业用户用平台 AI 工作台，生产用户只用业务 AI | `docs/ai-tool-usage-guide.md` |
 | AI 使用路径产品化 | 首次使用有引导，工作台能输出外部 AI 交接包，企业用户不必懂源码，A0-A2 是 MVP 必须满足 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
 | AI 工具责任边界 | 企业用户确认业务，平台组织上下文和交接包，实施人员/开发者使用外部 AI Coding 工具，生产只保留业务 AI | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
-| S1 开工检查 | 签收和精确启动口令满足后，创建源码目录前仍必须先输出结构化 S1 开工检查和 `admissionCard` | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md` |
+| S1 阶段准入与开工检查 | 签收和精确口令后先持久化 **docs/stage-records/S1-admission.md**，创建源码目录前再输出结构化 S1 检查和 `admissionCard` | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md` |
 | S1 关闭证据包 | S1 输出摘要必须包含交付物清单、验证结果、越界检查、文档同步、残余风险和下一阶段请求；不得自动授权 S2 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md` |
-| 任务状态 | `draft`、`clarifying`、`planned`、`waiting_confirm`、`confirmed`、`applying`、`verifying`、`completed`、`failed`、`cancelled`、`reverted` | `docs/terminology-and-naming.md` |
+| AI 任务状态 | `draft`、`clarifying`、`planned`、`waiting_confirm`、`handoff_ready`、`executing_external`、`verifying`、`completed`、`failed`、`blocked`、`cancelled`、`reverted`；确认是审计事件，不是状态 | `docs/terminology-and-naming.md`、ADR-0002 |
 | P0/P1 口径 | P0 是最小开发闭环，P1 是 MVP 完整交付闭环 | `docs/mvp-roadmap.md` |
 
 ## 5. S1 开工依据
@@ -112,7 +112,7 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 创建 `vibe-job` | P1 如需后台任务，先更新模块设计和术语规范 |
 | 实现客户拜访记录 | S4/S7 范围 |
 | 实现完整登录权限 | S2 范围 |
-| 实现 AI 工作台完整页面 | S3/S4 范围 |
+| 实现 AI 工作台完整页面 | S4 范围；S3 只做模型网关 |
 | 生成生产安装包 | S6 范围 |
 | 引入额外中间件 | 违反技术栈克制 |
 | 创建 P2/P2+ 预留模块 | `vibe-workflow`、`vibe-report`、`vibe-message`、`vibe-integration` 不进入 S1 |
@@ -164,12 +164,14 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 文档后续维护可能漏同步 | `docs/documentation-maintenance-guide.md` 已定义新增文档、ADR、引用和准入同步规则 | 不阻塞签收准备 |
 | 编码开始后新增请求导致范围漂移 | `docs/post-coding-change-control.md` 已定义 C0-C4 变更分级和阶段推进规则 | 不阻塞签收准备 |
 | 读者测试只有题库没有结果 | `docs/pre-coding-reader-test-results.md` 已记录当前测试结果 | 不阻塞签收准备 |
+| 第一轮独立读者审阅发现十项阻塞 | 原始 FAIL 结论和十项问题已保留，修订后第二轮技术复测通过；这不替代维护者签收 | 不阻塞签收准备 |
+| 叙述文档与机器契约可能漂移 | `docs/contracts/`、质量门禁和维护规则已要求 schema/样例校验及 Markdown 内嵌副本归一化比较 | 不阻塞签收准备 |
 | P1 生产安装包仍未实现 | 已有设计和任务分解，S6 再做 | 不阻塞签收准备 |
 | AI 工作台 P0 仍依赖外部 AI Coding 工具完成真实源码修改 | ADR-0003 已明确边界 | 不阻塞签收准备 |
 | AI 使用路径仍需要产品化实现 | 文档已定义首次使用引导和交接包，S4/S5 后通过工作台与脚本验证；当前仅可作为签收依据 | 不阻塞 S1 签收准备 |
 | AI 执行边界可能被误解为生产在线执行 | 签收包、冻结清单、读者测试、质量门禁和 S6 任务已明确补丁只限开发工作区，生产不执行交接包、补丁、SQL 或 shell | 不阻塞签收准备 |
 | 阶段关闭证据可能被误解为下一阶段许可 | S1 工作令、外部提示词、质量门禁、冻结清单、签收包、读者测试和签收记录已明确关闭证据包只申请关闭 S1，不能自动授权 S2 | 不阻塞签收准备 |
-| 数据权限完整实现可能晚于客户拜访记录演示 | 演示文档要求明确标注限制 | 不阻塞签收准备 |
+| 数据权限基础到 S4 才首次接入生成业务 | S2 必须先提供扩展点，S4 客户拜访记录必须完成销售 A/B/主管隔离验证，未通过则不能关闭 S4/S7 | 不阻塞 S1 签收，但禁止后续以限制说明替代实现 |
 | 开发包 runtime 不提交源码仓库 | 发行包阶段处理，源码仓库只保留策略 | 不阻塞签收准备 |
 
 ## 8. 审计结论
@@ -192,11 +194,11 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 4 | 阅读 `docs/post-coding-change-control.md`，确认编码后新增请求的处理方式 |
 | 5 | 阅读 `docs/requirements-traceability-matrix.md`，确认原始要求已有文档证据 |
 | 6 | 阅读 `docs/documentation-verification-log.md`，确认当前检查结果 |
-| 7 | 如签收未提交工作区，生成签收文档 manifest 并确认文档数量、纳入范围和 SHA256 清单 |
+| 7 | 如签收未提交工作区，生成签收文档 manifest 并确认文件数量、纳入范围和 SHA256 清单，确保包含 JSON 机器契约 |
 | 8 | 阅读 `docs/coding-start-signoff-package.md`，确认是否接受最终承诺，并逐项确认第 3.2 节最终审查表 |
 | 9 | 更新 `docs/coding-start-signoff.md`，或按其等价确认字段完整确认；“同意”“可以开始”等模糊表达不算签收 |
 | 10 | 如接受冻结，提交当前文档变更 |
-| 11 | 签收并获得精确启动口令 `开始 S1 工程骨架编码` 后，先输出 S1 开工检查，再从 `docs/s1-implementation-work-order.md`、`docs/engineering-skeleton-spec.md` 和 `docs/s1-task-breakdown.md` 开始 S1 编码 |
+| 11 | 签收并获得精确启动口令 `开始 S1 工程骨架编码` 后，先持久化 S1 stageAdmission 并输出开工检查，再从 `docs/s1-implementation-work-order.md`、`docs/engineering-skeleton-spec.md` 和 `docs/s1-task-breakdown.md` 开始 S1 编码 |
 | 12 | 每完成一个 S1 任务，按 `docs/quality-gates.md` 记录验证结果；S1 完成时输出阶段关闭证据包 |
 | 13 | 任何扩范围动作先按 C0-C4 判断，再回到文档和 ADR |
 

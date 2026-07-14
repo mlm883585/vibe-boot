@@ -1,4 +1,4 @@
-# Vibe Boot 模块设计草案
+# Vibe Boot 模块设计规格
 
 ## 1. 文档目的
 
@@ -38,7 +38,7 @@ vibe-boot/
 │   └── vibe-file/                # 文件存储
 ├── frontend/                     # Vue 3 管理端
 ├── scripts/                      # Windows PowerShell 脚本
-├── runtime/                      # 开发包预置 JDK/Maven/Node/Redis 等
+├── runtime/                      # 开发包预置 JDK/Maven/Node；不分发 Redis
 ├── data/                         # 本地数据目录，Git 忽略
 ├── logs/                         # 日志目录，Git 忽略
 ├── package/                      # 生产安装包输出目录，Git 忽略
@@ -71,12 +71,13 @@ vibe-boot/
 | `vibe-skill` | skills、规则集、提示词模板、项目上下文 | 是 |
 | `vibe-gen` | 元模型、代码生成、模板、SQL 迁移草案 | 是 |
 | `vibe-file` | 本地文件上传、下载、预览、存储策略接口 | 是 |
+| `vibe-biz` | S4 新增的生成业务承载模块，P0 只包含客户拜访记录演示 | 是，S4 创建 |
 | `vibe-workflow` | 审批流、状态流转 | P2 |
 | `vibe-report` | 报表、统计图、查询面板 | P2 |
 | `vibe-message` | 站内信、通知、WebSocket、企业微信/钉钉集成 | P2+ |
 | `vibe-integration` | 第三方系统连接器、Webhook | P2 |
 
-首版 P0 不应超过 8 个后端模块。`vibe-workflow`、`vibe-report`、`vibe-message`、`vibe-integration` 只能作为文档预留，不进入第一轮实现。
+S1 只创建 8 个平台核心模块，不创建 `vibe-biz`。S4 为验证真实业务生成闭环固定新增第 9 个模块 `vibe-biz`；除该业务承载模块外不得继续拆分新模块。`vibe-workflow`、`vibe-report`、`vibe-message`、`vibe-integration` 只能作为文档预留，不进入 S1-S7。
 
 ## 5. 后端依赖方向
 
@@ -90,6 +91,7 @@ flowchart TD
     Starter --> Skill["vibe-skill"]
     Starter --> Gen["vibe-gen"]
     Starter --> File["vibe-file"]
+    Starter --> Biz["vibe-biz（S4）"]
 
     System --> Common["vibe-common"]
     Security --> Common
@@ -97,6 +99,8 @@ flowchart TD
     Skill --> Common
     Gen --> Common
     File --> Common
+    Biz --> Common
+    Biz --> Security
 
     Gen --> System
     Gen --> Skill
@@ -209,7 +213,7 @@ S2 基础后台的页面、接口、权限、初始数据和验收标准见 `doc
 | 子能力 | 说明 |
 | --- | --- |
 | 模型供应商 | OpenAI 兼容接口、国内模型供应商适配 |
-| 模型配置 | API Base、API Key、模型名、启用状态 |
+| 模型配置 | API Base、只写 API Key、`credentialConfigured`、模型名、启用状态；数据库只存 AES-GCM 密文 |
 | 模型网关 | 统一请求、响应、错误、重试、超时 |
 | 对话记录 | 开发模式对话、任务上下文 |
 | 用量统计 | token、调用次数、任务成本 |
@@ -318,14 +322,14 @@ backend/vibe-starter/src/main/resources/
 | `application.yml` | 是 | 通用配置 |
 | `application-dev.yml` | 是 | 开发模式默认配置 |
 | `application-prod.yml` | 是 | 生产模式模板 |
-| `application-local.yml` | 否 | 本地密钥、数据库密码、模型 API Key |
+| `application-local.yml` | 否 | 本地数据库、Redis、路径和会话配置；不得保存供应商 API Key |
 | `.env` | 否 | 脚本或前端本地环境变量 |
 
 配置约束：
 
 | 约束 | 说明 |
 | --- | --- |
-| 密钥不入库 | API Key、数据库/Redis/TLS 私钥密码不提交；P0 不使用 JWT Token Secret |
+| 密钥边界 | 模型 API Key 仅以 ADR-0002 的 AES-GCM 密文入库；模型主密钥、数据库/Redis/TLS 私钥密码不入库、不提交；P0 不使用 JWT Token Secret |
 | 生产配置外置 | 安装包生成后允许用户修改外部配置 |
 | 默认中文错误 | 配置缺失时输出中文提示 |
 | 模型配置独立 | 不散落在业务模块配置中 |
@@ -338,22 +342,23 @@ backend/vibe-starter/src/main/resources/
 | --- | --- |
 | 表名统一前缀 | 系统表 `sys_`，AI 表 `ai_`，生成表 `gen_`，文件表 `file_` |
 | 字段命名统一 | 使用 snake_case |
-| 主键统一 | 默认 `bigint` 或雪花 ID，编码前定稿 |
+| 主键统一 | `bigint` 存储雪花 ID，由公共模块统一生成，已由 ADR-0001 冻结 |
 | 审计字段统一 | `created_at`、`updated_at`、`created_by`、`updated_by` |
 | 逻辑删除统一 | `deleted` |
 | 字符集统一 | `utf8mb4` |
 | 迁移脚本版本化 | 不允许散落 SQL |
 
-建议首版表域：
+首版及 P1 表域：
 
-| 表域 | 示例 |
-| --- | --- |
-| 系统 | `sys_user`、`sys_role`、`sys_menu`、`sys_dept`、`sys_dict_type`、`sys_dict_item` |
-| 日志 | `sys_login_log`、`sys_oper_log` |
-| AI | `ai_provider`、`ai_model_config`、`ai_conversation`、`ai_task`、`ai_usage_log` |
-| Skill | `skill_definition`、`skill_rule`、`skill_context` |
-| 生成 | `gen_entity`、`gen_field`、`gen_task`、`gen_artifact` |
-| 文件 | `file_object`、`file_group` |
+| 表域 | 示例 | 范围 |
+| --- | --- | --- |
+| 系统 | `sys_user`、`sys_role`、`sys_menu`、`sys_dept`、`sys_dict_type`、`sys_dict_item` | P0 |
+| 日志 | `sys_login_log`、`sys_oper_log` | P0 |
+| AI | `ai_provider`、`ai_model_config`、`ai_conversation`、`ai_task`、`ai_usage_log` | P0 |
+| Skill | `skill_definition`、`skill_rule`、`skill_context` | P1；P0 使用 Markdown 权威源和 `ai_task` 快照 |
+| 生成 | `gen_entity`、`gen_field`、`gen_task`、`gen_artifact` | P0 |
+| 文件 | `file_object` | P0；`file_group` 为 P1 |
+| 业务演示 | `biz_customer_visit` | P0，S4/S7 |
 
 ## 11. 测试模块约束
 
@@ -366,15 +371,15 @@ backend/vibe-starter/src/main/resources/
 | 单元测试 | 核心工具、规则检查、代码生成逻辑 |
 | 集成测试 | 登录、权限、CRUD 生成链路 |
 | API 测试 | 关键 Controller 使用 MockMvc 或等价方式 |
-| 数据库测试 | 可使用 H2 或 Testcontainers，编码前决策 |
-| 前端测试 | P0 可先不强制，但关键工具函数应可测 |
+| 数据库测试 | P0 连接用户提供的隔离 MySQL 8 测试库；不使用 H2，不引入 Testcontainers/Docker 依赖 |
+| 前端测试 | P0 不新增 Vitest/Jest 等测试框架，固定以 TypeScript 编译和 `npm run build` 为自动门禁；E2E 自动化到 P1 |
 | E2E 测试 | P1 引入，用于开发包启动和核心流程 |
 
 质量门禁最小集：
 
 | 阶段 | 命令目标 |
 | --- | --- |
-| 后端 | `mvn test` 或至少 `mvn -DskipTests package` |
+| 后端 | `scripts/mvn.ps1 test` 或至少 `scripts/mvn.ps1 -DskipTests package` |
 | 前端 | `npm run build` |
 | 生成后 | 生成模块能编译，接口和页面路径存在 |
 | 发布前 | 后端 jar 和前端静态资源能组成安装包 |
@@ -426,8 +431,8 @@ backend/vibe-starter/src/main/resources/
 | 权限框架 | Sa-Token 1.45.0 | 已由 ADR-0001 确认 |
 | ID 策略 | 雪花 ID | 已由 ADR-0001 确认 |
 | 迁移工具 | Flyway | 已由 ADR-0001 确认 |
-| Redis Windows | 开发可选内置，生产外部连接 | 已由 ADR-0001 确认 |
-| Windows 服务 | WinSW | 已由 ADR-0001 确认 |
+| Redis Windows | 开发默认内存降级、可接外部 Redis；生产强制外部 Redis；不内置 Redis 可执行文件 | 已由 ADR-0001 确认 |
+| Windows 服务 | Apache Commons Daemon Procrun 1.6.1 x64 | 已由 ADR-0001 确认 |
 | 测试数据库 | P0 本地 MySQL，P1 Testcontainers | 已由 ADR-0001 确认 |
 
 ## 15. 编码准入

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "installRoot": "C:\\VibeBoot",
+  "serviceName": "VibeBoot",
+  "accessMode": "local",
+  "bindAddress": "127.0.0.1",
+  "businessPort": 8080,
+  "managementPort": 8081,
+  "allowedOrigin": "http://127.0.0.1:8080",
+  "openFirewall": false,
+  "instanceId": "GENERATE",
+  "allowInsecureLoopback": false,
+  "mysql": {
+    "host": "mysql.example.cn",
+    "port": 3306,
+    "database": "vibe_boot",
+    "applicationUsername": "vibe_boot_app",
+    "migrationUsername": "vibe_boot_migration",
+    "tlsMode": "verify-identity",
+    "caFile": "D:\\install-input\\mysql-ca.pem",
+    "mysqlClientBin": "C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin"
+  },
+  "redis": {
+    "host": "redis.example.cn",
+    "port": 6379,
+    "username": "vibe_boot",
+    "tlsEnabled": true,
+    "caFile": "D:\\install-input\\redis-ca.pem",
+    "database": 0
+  },
+  "tls": {
+    "keyStorePath": null
+  }
+}

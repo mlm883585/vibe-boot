@@ -72,13 +72,14 @@ P0 演示建议 AI 至少提出：
 | tableName | biz_customer_visit |
 | packageName | com.vibeboot.biz.customervisit |
 
-说明：`biz` 业务模块在 S4 可作为生成目标模块；若首版暂未创建独立 `vibe-biz` 模块，也可以生成到 `vibe-system` 的 demo 包，但必须在生成计划中说明。
+说明：S4 固定新增独立 Maven 模块 `vibe-biz`，并将其作为 P0 生成业务代码的唯一目标模块；客户拜访记录必须生成到 `com.vibeboot.biz.customervisit`。不得把演示业务代码放入 `vibe-system`，S1 也不得提前创建 `vibe-biz`。
 
-## 7. 字段定义
+机器可读样例固定为 `docs/contracts/examples/customer-visit-meta-model-v1.json`，必须同时通过 `docs/contracts/codegen-meta-model-v1.schema.json` 和代码生成设计第 5.5 节语义校验。表格与样例冲突时不得自行选择，必须先修订两者。
+
+## 7. 业务字段定义
 
 | 字段名 | 数据库字段 | 类型 | 必填 | 列表 | 表单 | 搜索 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| id | id | Long | 是 | 否 | 否 | 否 | 雪花 ID |
 | customerName | customer_name | String(100) | 是 | 是 | 是 | 是 | 客户名称 |
 | contactName | contact_name | String(50) | 否 | 是 | 是 | 否 | 联系人 |
 | visitTime | visit_time | DateTime | 是 | 是 | 是 | 是 | 拜访时间 |
@@ -87,12 +88,8 @@ P0 演示建议 AI 至少提出：
 | nextAction | next_action | String(255) | 否 | 是 | 是 | 否 | 下一步动作 |
 | ownerUserId | owner_user_id | Long | 是 | 是 | 否 | 否 | 负责人 |
 | status | status | Enum | 是 | 是 | 是 | 是 | 状态 |
-| createdAt | created_at | DateTime | 是 | 是 | 否 | 否 | 创建时间 |
-| updatedAt | updated_at | DateTime | 是 | 否 | 否 | 否 | 更新时间 |
-| createdBy | created_by | Long | 否 | 否 | 否 | 否 | 创建人 |
-| updatedBy | updated_by | Long | 否 | 否 | 否 | 否 | 更新人 |
-| deleted | deleted | Boolean | 是 | 否 | 否 | 否 | 逻辑删除 |
-| version | version | Integer | 是 | 是 | 否 | 否 | 乐观锁版本，默认 0 |
+
+`id/createdAt/updatedAt/createdBy/updatedBy/deleted/version` 不进入元模型 fields，由生成器按 `docs/code-generation-design.md` 第 5.6 节固定注入。VO 返回除 deleted 外的系统字段，UpdateDTO 只额外接收 version。
 
 编辑接口必须提交当前 version，成功后原子加一。两个会话编辑同一条拜访记录时，后提交者返回 `DATA_0409` 并提示重新加载，不得静默覆盖先提交内容。
 
@@ -144,6 +141,17 @@ P0 演示建议 AI 至少提出：
 | PUT | `/api/biz/customer-visits/{id}` | `biz:customerVisit:update` | 编辑 |
 | DELETE | `/api/biz/customer-visits/{id}` | `biz:customerVisit:delete` | 删除 |
 
+DELETE 固定使用 `?version={int>=0}`，所有详情、更新和删除都必须先应用当前用户数据范围，不能先查全库再在 Controller 判断 owner。
+
+| 对象 | 精确字段与校验 |
+| --- | --- |
+| `CustomerVisitPageQuery` | `customerName? 1..100` 模糊匹配并转义 `%/_`；`visitTimeFrom?/visitTimeTo?:ISO-8601 datetime` 且 from≤to、跨度≤366天；`status?:draft|completed|cancelled`；`pageNo 1..100000`；`pageSize 1..100`；`sortField=visitTime|createdAt` 默认 visitTime；`sortOrder=asc|desc` 默认 desc |
+| `CustomerVisitCreateDTO` | `customerName 1..100`；`contactName? <=50`；`visitTime`；`visitType=phone|onsite|online`；`summary 1..10000`；`nextAction? <=255`；`status=draft|completed|cancelled`；不接收 ownerUserId/id/audit/deleted/version |
+| `CustomerVisitUpdateDTO` | 与 CreateDTO 相同业务字段 + `version:int>=0`；不接收 ownerUserId/id/audit/deleted |
+| `CustomerVisitVO` | `id/customerName/contactName/visitTime/visitType/summary/nextAction/ownerUserId/ownerNickname/status/createdAt/updatedAt/createdBy/updatedBy/version`；Long 均为 string，不返回 deleted |
+
+字符串字段先 trim；trim 后空字符串按必填失败或可选 null 处理。visitTime 以 `Asia/Shanghai` 解释无 offset 的管理端输入，服务端按 UTC 写入 `datetime(3)`，响应统一输出带 `Z` 的 UTC ISO-8601。创建时 ownerUserId 固定为当前用户，管理员也不能代填；P0 不提供转交负责人接口。更新和删除使用 `id + version + deleted=0 + 数据范围条件` 原子执行，未命中时：记录不存在/越权统一返回 `DATA_0404`，已授权但 version 冲突返回 `DATA_0409`，不得泄露他人记录是否存在。
+
 约束：
 
 | 约束 | 说明 |
@@ -153,6 +161,8 @@ P0 演示建议 AI 至少提出：
 | 入参 | Create/Update DTO |
 | 出参 | VO |
 | 删除 | 逻辑删除 |
+
+分页返回 `PageResult<CustomerVisitVO>`，详情/创建/更新返回 `CustomerVisitVO`，删除返回 null。所有请求拒绝未知字段，Controller 不接收 Entity、Map 或任意 JSON。
 
 ## 11. 页面设计
 
@@ -189,19 +199,15 @@ P0 演示数据权限策略：
 | 销售主管 | 全部客户拜访记录 |
 | 管理员 | 全部客户拜访记录 |
 
-如果 S4 代码生成阶段数据权限能力尚未完成，AI 必须在生成摘要中标记：
-
-> 数据权限已在需求和权限说明中定义，当前生成结果需等待数据权限基础能力接入后完全生效。
-
 演示验收不得只使用管理员账号。至少需要准备两个业务用户，以证明菜单权限、接口权限和数据范围是三个不同层次。
 
 | 验收账号 | 预期 |
 | --- | --- |
 | 销售人员 A | 能看到自己创建或负责的拜访记录 |
 | 销售人员 B | 不能看到 A 的仅本人范围记录 |
-| 销售主管 | 按当前实现能力查看本部门或全部演示数据；若未生效必须在演示摘要说明 |
+| 销售主管 | 能查看全部客户拜访演示数据 |
 
-若数据权限基础能力尚未接入，S7 演示输出必须把该项列为限制，不能宣称“销售人员和主管数据范围已通过”。
+S2 的数据权限基础是 S4 前置条件。客户拜访记录生成结果必须接入当前用户和数据范围查询扩展点：销售人员只看本人创建或负责的记录，销售主管和管理员看全部记录。该门禁未通过时 S4 不能关闭，S7 也不能以“已说明限制”替代失败。
 
 ## 13. 生成产物清单
 
@@ -218,6 +224,8 @@ P0 演示数据权限策略：
 | `CustomerVisitService.java` | Service |
 | `CustomerVisitServiceImpl.java` | Service 实现 |
 | `CustomerVisitController.java` | Controller |
+| `CustomerVisitControllerTest.java` | CRUD、权限、参数和并发冲突 MockMvc 正反用例 |
+| `CustomerVisitDataScopeTest.java` | 销售 A/B、主管、管理员数据隔离集成用例 |
 
 前端：
 
@@ -244,7 +252,7 @@ P0 演示数据权限策略：
 
 | 验证项 | 标准 |
 | --- | --- |
-| 后端编译 | `mvn -pl vibe-starter -am test` 通过 |
+| 后端编译 | `scripts/mvn.ps1 -pl vibe-starter -am test` 通过 |
 | 前端构建 | `npm run build` 通过 |
 | SQL 迁移 | Flyway 可识别迁移文件 |
 | 菜单权限 | 菜单和按钮权限生成 |
@@ -264,7 +272,7 @@ AI 完成生成后必须输出：
 | 澄清结果 | 采用了哪些默认答案 |
 | 生成文件 | 文件列表 |
 | 权限说明 | 菜单和按钮权限 |
-| 数据权限说明 | 当前支持程度 |
+| 数据权限证据 | 销售 A、销售 B、销售主管三类账号的查询结果与隔离验证 |
 | 验证结果 | 执行了哪些命令 |
 | 风险和限制 | 未实现的 P1/P2 能力 |
 
@@ -277,7 +285,7 @@ AI 完成生成后必须输出：
 | 没有权限标识 | 违反安全规则 |
 | SQL 未版本化 | 违反迁移规则 |
 | 生成后无法构建 | 未通过质量门禁 |
-| 不说明数据权限限制 | 误导用户 |
+| 数据权限未接入或只写限制说明 | P0 核心验收失败，不能用说明替代实现 |
 
 ## 17. 一句话总结
 

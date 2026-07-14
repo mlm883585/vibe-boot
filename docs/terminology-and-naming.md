@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | Vibe Boot | 本项目产品名和工程名 | 不写成 VibeBoot 平台、Vibe-Boot |
 | 开发模式 | 可使用外部 AI Coding 工具和平台内 AI 工作台迭代代码的模式 | 不等同于生产调试模式 |
-| 生产模式 | 运行构建产物的稳定模式，默认禁用开发型 AI | 不允许在线改源码 |
+| 生产模式 | 运行构建产物的稳定模式，不包含开发型 AI 页面/API/路由 | 不允许在线改源码，也不能配置恢复入口 |
 | 外部 AI Coding 工具 | Codex、Cursor、Claude Code、通义灵码等 IDE/Agent 工具 | 不称为平台内 Agent |
 | 平台内 AI 工作台 | Vibe Boot 管理端内置的受控 AI 任务入口 | 不称为完整 IDE |
 | 模型网关 | 统一模型配置、调用、用量、脱敏和审计能力 | 业务模块不得直接调用模型 SDK |
@@ -31,10 +31,10 @@
 | S1 | 工程骨架 |
 | S2 | 基础后台 |
 | S3 | 模型网关 |
-| S4 | 代码生成闭环 |
+| S4 | AI 工作台与代码生成闭环 |
 | S5 | Windows 开发包 |
 | S6 | 生产安装包 |
-| S7 | MVP 端到端演示 |
+| S7 | MVP 演示验收 |
 
 ## 4. 后端模块命名
 
@@ -60,7 +60,7 @@
 | `scripts/` | Windows PowerShell 开发、构建、安装、备份脚本 | 提交脚本 |
 | `docs/` | 产品、架构、规格、ADR、任务分解文档 | 提交文档 |
 | `config/` | 配置模板和本地配置示例 | 提交示例，不提交密钥 |
-| `runtime/` | JDK/Maven/Node/Redis 等运行时 | 源码仓库不提交大型二进制 |
+| `runtime/` | 开发包 JDK/Maven/Node 运行时 | 源码仓库不提交大型二进制；MySQL/Redis 不随包分发 |
 | `data/` | 用户数据、文件数据 | 不提交 |
 | `logs/` | 脚本、后端、前端、安装、备份日志 | 不提交 |
 | `package/` | 构建出的开发包或生产安装包 | 不提交 |
@@ -94,17 +94,20 @@ AI 工作台任务状态统一使用以下值。
 | --- | --- | --- |
 | `draft` | 用户刚创建任务或提交原始需求 | -> `clarifying` / `planned` / `cancelled` |
 | `clarifying` | 正在澄清需求和默认假设 | -> `planned` / `failed` / `cancelled` |
-| `planned` | 已生成变更计划、风险和验证建议 | -> `waiting_confirm` / `confirmed` / `cancelled` |
-| `waiting_confirm` | 等待用户确认计划或风险 | -> `confirmed` / `cancelled` |
-| `confirmed` | 用户已确认计划或风险 | -> `applying` / `completed` / `cancelled` |
-| `applying` | 正在应用补丁或生成产物 | -> `verifying` / `failed` |
-| `verifying` | 正在执行验证 | -> `completed` / `failed` |
+| `planned` | 已生成变更计划、风险和验证建议 | -> `waiting_confirm` / `handoff_ready` / `blocked` / `cancelled` |
+| `waiting_confirm` | 等待用户确认计划、范围或风险 | -> `handoff_ready` / `blocked` / `cancelled` |
+| `handoff_ready` | 确认记录、准入卡、允许/禁止范围、上下文和验证命令齐全 | -> `executing_external` / `verifying` / `completed` / `blocked` / `cancelled` |
+| `executing_external` | P0 外部 AI Coding 工具正在开发工作区处理交接包 | -> `verifying` / `failed` / `blocked` / `reverted` |
+| `verifying` | 正在记录或执行验证 | -> `completed` / `failed` / `blocked` / `reverted` |
 | `completed` | 任务完成 | 终态 |
 | `failed` | 任务失败 | 终态或人工重开新任务 |
+| `blocked` | 缺少模型、环境、签收、需求或验证条件 | -> `clarifying` / `planned` / `waiting_confirm` / `handoff_ready` / `cancelled` |
 | `cancelled` | 用户取消 | 终态 |
 | `reverted` | 已回滚已应用变更 | 终态 |
 
-禁止使用 `planning`、`success`、`done`、`error` 作为持久化状态。界面文案可以显示“规划中/已成功”，但数据库、API 和日志必须使用上述标准值。
+禁止使用 `confirmed`、`applying`、`planning`、`success`、`done`、`error` 作为 AI 任务持久化状态。`confirmed` 只表示审计事件，`applying` 已由 `executing_external` 取代。界面文案可以显示“已确认/执行中/已成功”，但数据库、API 和日志必须使用上述标准值。
+
+AI 任务状态与第 8 节代码生成作业状态相互独立。例如代码生成作业可以处于 `generated`，其所属 AI 任务仍处于 `verifying`；实现时不得复用同一枚举类或数据库约束。
 
 ### 7.1 文件对象状态
 
@@ -121,7 +124,7 @@ AI 工作台任务状态统一使用以下值。
 
 ## 8. 代码生成状态
 
-代码生成任务可复用 AI 任务状态，但元模型状态应保持更小集合。
+代码生成作业使用独立于 AI 任务的更小状态集合。二者可以通过 taskId 关联，但不得复用同一持久化枚举或数据库约束。
 
 | 状态 | 含义 |
 | --- | --- |
@@ -129,8 +132,10 @@ AI 工作台任务状态统一使用以下值。
 | `planned` | 已生成计划 |
 | `confirmed` | 用户已确认元模型 |
 | `generated` | 产物已生成或预览 |
+| `conflict` | 检测到人工修改、产物所有权冲突或无法安全覆盖，等待重新计划 |
 | `verified` | 验证通过 |
 | `failed` | 生成或验证失败 |
+| `reverted` | 已回滚本次生成产物 |
 
 代码生成结果未验证通过前，不得标记业务任务 `completed`。
 

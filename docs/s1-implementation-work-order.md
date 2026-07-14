@@ -24,12 +24,13 @@
 
 未读完以上文档，不得开始编码。
 
-开工还必须同时满足两个条件：
+开工还必须同时满足四个条件：
 
 | 条件 | 要求 |
 | --- | --- |
 | 签收状态 | `docs/coding-start-signoff.md` 当前必须为“已签收 / 是否允许开始 S1 编码：是” |
 | 启动口令 | 维护者必须明确说出“开始 S1 工程骨架编码” |
+| 阶段准入记录 | 收到精确口令后，先创建 **docs/stage-records/S1-admission.md**，完整记录 `stageAdmission` 且 `decision=pass` |
 | AI 使用准入卡 | 外部 AI Coding 工具必须先给出 `admissionCard` 结论，确认编码许可、任务阶段、执行入口、上下文、风险、验证和生产边界 |
 
 缺少任一条件时，本文只能作为施工准备文档，不得据此创建源码目录。
@@ -45,6 +46,7 @@
 | `signoffStatus` | `已签收` | 停止编码，只允许修订 `docs/` |
 | `s1Allowed` | `是` | 停止编码，只允许修订 `docs/` |
 | `launchPhraseExact` | `true`，且口令精确等于 `开始 S1 工程骨架编码` | 停止编码，提示补齐精确口令 |
+| `stageAdmissionPath` | **docs/stage-records/S1-admission.md**，且完整记录的 `decision=pass` | 停止编码，补齐并持久化准入记录 |
 | `workingDirectory` | 项目根目录 | 停止编码，切换到正确仓库根目录 |
 | `sourceDirsBefore` | 未创建 `backend/`、`frontend/`、`scripts/`、`config/`，或说明这些目录来自已授权的 S1 变更 | 如果来源不明，停止并先审计 |
 | `allowedScope` | 只允许 S1 工程骨架 | 停止越界任务，回到阶段文档 |
@@ -77,7 +79,7 @@ S1 只建立最小可启动、可构建、可诊断的工程骨架。
 | 目标 | 成功标准 |
 | --- | --- |
 | 后端骨架 | `backend/` Maven 多模块存在，`vibe-starter` 可快速构建 |
-| 前端骨架 | `frontend/` Vue 3.5.39 + Vite 8.1.3 + TypeScript 6.0.3 + Element Plus 2.14.2 可构建 |
+| 前端骨架 | `frontend/` Vue 3.5.39 + Vite 8.1.3 + TypeScript 6.0.3 + Element Plus 2.14.2 + Pinia 3.0.4 + Vue Router 4.6.4 + Axios 1.18.1 可构建 |
 | 脚本骨架 | `scripts/doctor.ps1`、`dev-start.ps1`、`dev-stop.ps1` 有中文输出 |
 | 配置骨架 | dev/prod/local example 分离，密钥不入库 |
 | 根 README | 指向 docs、开发检查、启动和验证命令 |
@@ -108,7 +110,7 @@ S1 只建立最小可启动、可构建、可诊断的工程骨架。
 | 实现登录、用户、角色、菜单业务 | S2 范围 |
 | 创建系统表和初始化菜单 SQL | S2 范围 |
 | 实现模型配置和模型调用 | S3 范围 |
-| 实现 AI 工作台页面和任务流 | S3/S4 范围 |
+| 实现 AI 工作台页面和任务流 | S4 范围；S3 只做模型网关 |
 | 实现代码生成模板 | S4 范围 |
 | 实现客户拜访记录 | S4/S7 范围 |
 | 实现生产打包和安装脚本 | S6 范围 |
@@ -129,17 +131,17 @@ S1 只建立最小可启动、可构建、可诊断的工程骨架。
 | 7 | 创建 Vue 前端骨架 | `npm install`、`npm run build` 可执行 |
 | 8 | 创建 PowerShell 脚本骨架 | doctor/dev-start/dev-stop 有中文输出 |
 | 9 | 创建配置模板 | example 文件存在，真实 local 文件忽略 |
-
-S1 不实现匿名 `/api/system/health`，也不开放 Actuator 详细信息或其他管理端点。受权限保护的系统健康明细属于 S2，生产依赖和脚本退出码属于 S6。
 | 10 | 更新根 README | 指向 docs 和验证命令 |
 | 11 | 执行 S1 验证 | 输出通过、失败或未执行原因 |
+
+S1 不实现匿名 `/api/system/health`，也不开放 Actuator 详细信息或其他管理端点。受权限保护的系统健康明细属于 S2，生产依赖和脚本退出码属于 S6。
 
 ## 8. 默认验证命令
 
 | 验证 | 命令 | 说明 |
 | --- | --- | --- |
-| 后端快速构建 | `mvn -pl vibe-starter -am -DskipTests package` | 在 `backend/` 下执行 |
-| 后端完整验证 | `mvn -pl vibe-starter -am test` | 测试就绪后执行 |
+| 后端快速构建 | `scripts/mvn.ps1 -pl vibe-starter -am -DskipTests package` | 在仓库根目录执行，脚本内部切换到 `backend/` |
+| 后端完整验证 | `scripts/mvn.ps1 -pl vibe-starter -am test` | 测试就绪后执行 |
 | 前端构建 | `npm run build` | 在 `frontend/` 下执行 |
 | 环境诊断 | `scripts/doctor.ps1` | 在项目根目录执行 |
 | 开发启动 | `scripts/dev-start.ps1` | 可失败，但必须给中文原因 |

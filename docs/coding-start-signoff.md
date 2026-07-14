@@ -14,7 +14,7 @@
 | 是否允许开始 S1 编码 | 否 |
 | 签收人 | 待维护者填写 |
 | 签收日期 | 待维护者填写 |
-| 签收基线 | 待维护者填写提交哈希，或签收文档 manifest 的生成时间、文档数量和纳入范围 |
+| 签收基线 | 待维护者填写提交哈希，或签收文档 manifest 的生成时间、文件数量和纳入范围；manifest 必须包含 JSON 机器契约 |
 | 备注 | 当前仍处于文档优先阶段 |
 
 ## 2.1 当前编码许可判定
@@ -67,7 +67,7 @@
 | P1 只补齐 MVP 交付闭环 | 是 | 未签收 |
 | 首版 Windows 优先 | 是 | 未签收 |
 | 技术栈最小化 | 是 | 未签收 |
-| Node.js 20.19+ LTS + npm + package-lock | 是 | 未签收 |
+| Node.js 24.x LTS（基线 24.18.0）+ npm + package-lock | 是 | 未签收 |
 | AI 工具使用方式已按外部 AI Coding 工具、平台 AI 工作台、模型网关和生产业务 AI 分层定稿 | 是 | 未签收 |
 | P0 不自研完整 AI IDE | 是 | 未签收 |
 | 外部 AI Coding 工具作为 P0 真实源码修改主路径 | 是 | 未签收 |
@@ -82,9 +82,10 @@
 | 企业用户不必懂源码，源码修改可由实施人员或开发者使用外部 AI 工具完成 | 是 | 未签收 |
 | 生产禁用开发型 AI | 是 | 未签收 |
 | 生产 AI 白名单只允许业务问答、摘要、分类、文案、分析和连接测试 | 是 | 未签收 |
-| 模型调用前必须做数据分类、最小化、脱敏、权限过滤和出境风险提示 | 是 | 未签收 |
+| 模型调用前必须做数据分类、最小化、脱敏、权限过滤和出境风险提示，API Base 必须通过 SSRF/DNS/TLS/重定向/响应大小门禁 | 是 | 未签收 |
 | 配置与密钥边界已确认，真实 local/prod/install/model 配置不得进入 Git、日志、AI 上下文或默认生产包 | 是 | 未签收 |
-| 第三方依赖、runtime 和工具来源、版本、许可证、NOTICE 和依赖 manifest 必须可追踪 | 是 | 未签收 |
+| 模型 API Key 使用 JDK AES-256-GCM 密文入库，32-byte 主密钥外置，API 只返回 `credentialConfigured`，不得降级为数据库明文或只靠 ignored 文件保存供应商 API Key | 是 | 未签收 |
+| 开发包 runtime manifest/NOTICE 与生产包 runtime manifest/依赖 manifest/NOTICE 的来源、版本、许可证和 SHA256 必须可追踪 | 是 | 未签收 |
 | P0 文件能力限定为本地单文件基础服务，不包含业务附件、Office 在线预览、分片或对象存储 | 是 | 未签收 |
 | P0 API 并发与重复提交使用唯一约束、version 乐观锁、状态条件更新和短事务，不引入通用幂等中间件 | 是 | 未签收 |
 | traceId 由服务端统一生成并同步到响应体、`X-Trace-Id` 和 MDC，客户端不得覆盖 | 是 | 未签收 |
@@ -93,15 +94,29 @@
 | 登录限流、同源 Origin 和会话绑定 CSRF Token 属于 P0，不得以验证码或未来网关替代 | 是 | 未签收 |
 | 生产 local 仅回环，lan 强制 HTTPS，Actuator 只监听 127.0.0.1:8081 | 是 | 未签收 |
 | Windows 防火墙默认不放行；显式确认时只开放产品 HTTPS 业务端口，不开放 8081/MySQL/Redis | 是 | 未签收 |
+| PowerShell 5.1 的 `ConvertFrom-Json` 只初筛，已认证 Java classpath 从原始 bytes 做 strict duplicate detection 与机器 Schema 权威校验 | 是 | 未签收 |
+| `install-v1.schema.json` 与标准样例是唯一安装配置结构契约，密码不在 schema，目录从 installRoot 派生 | 是 | 未签收 |
+| 生产包首装先用 OS-only Authenticode API 比对带外 signer，再校验签名 package manifest 和全文件集合 | 是 | 未签收 |
+| Procrun 固定 LocalService + service SID，安装根和子目录关闭继承并写显式 ACE，operations 与 data 为兄弟目录 | 是 | 未签收 |
+| MySQL 运行/迁移账号分离，常驻服务只持有 DML 且禁用 Flyway | 是 | 未签收 |
+| 非回环 MySQL/Redis 强制 CA/主机名校验 TLS，MySQL 8 Client 路径、版本和 SHA256 在安装前锁定 | 是 | 未签收 |
+| 高风险迁移必须经过风险源、开关、精确短语、operationId、列表 hash 和二次复核，P0 不支持无人值守确认 | 是 | 未签收 |
+| 备份排除全部 secret 与模型主密钥；恢复/回滚由 `clear-redis-namespace` 清空本实例 Redis，失败保持停服 | 是 | 未签收 |
+| state v2 对九类资源逐项记录状态与 hash，maintenance.flag、崩溃恢复矩阵和 18 个提升中断用例均为必验 | 是 | 未签收 |
+| Flyway 不创建带密码管理员；生产默认交互确认，只有显式 `-GenerateInitialAdminPassword` 才生成一次性 24 位密码，bootstrap-admin 仅从 stdin 接收 | 是 | 未签收 |
+| P0 API/DTO/VO/权限/错误、逻辑 DDL、代码生成 Schema/样例和 owned 路径已冻结，编码时不得自行补设计 | 是 | 未签收 |
+| S2-S4 关闭必须通过完整测试、关键 MockMvc/API、真实 MySQL 8 和前端构建，快速构建不能替代 | 是 | 未签收 |
+| S7 必须在全新 Windows Server 2022 VM 和外部 TLS MySQL 8/Redis 7 上跑完 F01-F16 | 是 | 未签收 |
 | 通用 Excel 导入导出属于 P2，不进入 S1-S7 必做范围 | 是 | 未签收 |
 | 签收前必须确认仓库基线，未纳入签收基线的草稿不得作为编码依据 | 是 | 未签收 |
-| 代码补丁和文件写入只限开发工作区，生产不得在线执行 | 是 | 未签收 |
+| P0 通用补丁由外部 AI Coding 工具承接，确定性生成器只写 owned 路径；P1 本地执行器需另立 ADR，生产不得在线执行 | 是 | 未签收 |
 | 外部 AI 交接包不能作为生产补丁、SQL 或 shell 执行入口 | 是 | 未签收 |
 | 外部 AI 交接包不是编码授权书，不能绕过签收、启动口令、允许范围和质量门禁 | 是 | 未签收 |
 | 生产发布只能走受控发布通道，不能复制源码、复制开发库、执行交接包或手工 SQL | 是 | 未签收 |
 | 首个演示只做客户拜访记录 | 是 | 未签收 |
 | S1 只做工程骨架 | 是 | 未签收 |
 | S1 工作令不等于开工许可，仍需签收记录和启动口令 | 是 | 未签收 |
+| S1 收到精确口令后、创建源码目录前必须持久化 **docs/stage-records/S1-admission.md** 且 decision=pass | 是 | 未签收 |
 | S1 不创建 P2/P2+ 预留模块 | 是 | 未签收 |
 | 质量门禁失败不得宣称完成 | 是 | 未签收 |
 | 编码后仍遵守文档优先 | 是 | 未签收 |
@@ -137,7 +152,7 @@
 | 签收项 | 明确写出第 4 节全部签收项均接受，或逐项列出接受结果 |
 | 签收人 | 明确写出维护者姓名或账号 |
 | 签收日期 | 明确写出日期 |
-| 签收基线 | 明确写出提交哈希；若签收未提交工作区，必须写出 manifest 生成时间、文档数量、纳入范围和 manifest 输出保存位置 |
+| 签收基线 | 明确写出提交哈希；若签收未提交工作区，必须写出 manifest 生成时间、文件数量、纳入范围和 manifest 输出保存位置，且覆盖 Markdown 与 JSON 机器契约 |
 | 启动口令 | 在签收之后，另行给出精确文本 `开始 S1 工程骨架编码` |
 
 以下表达不构成等价确认。
@@ -157,7 +172,7 @@
 | 禁止 | 原因 |
 | --- | --- |
 | 实现登录、用户、角色、菜单业务 | S2 范围 |
-| 实现模型调用或 AI 工作台 | S3/S4 范围 |
+| 实现模型调用或 AI 工作台 | 模型网关属于 S3，AI 工作台属于 S4 |
 | 实现代码生成模板 | S4 范围 |
 | 实现客户拜访记录 | S4/S7 范围 |
 | 实现生产安装包 | S6 范围 |
@@ -176,7 +191,7 @@
 是否允许开始 S1 编码：是
 签收人：<姓名或账号>
 签收日期：YYYY-MM-DD
-签收基线：<提交哈希；或签收文档 manifest 生成时间 + ManifestDocs 数量 + 纳入范围 + manifest 输出保存位置>
+签收基线：<提交哈希；或签收文档 manifest 生成时间 + ManifestFiles 数量 + 纳入范围 + manifest 输出保存位置>
 最终审查表：已确认 docs/coding-start-signoff-package.md 第 3.2 节全部审查域
 备注：接受当前 P0/P1 范围、Windows 优先、最小技术栈、AI 工具边界和 S1 起步策略。
 ```

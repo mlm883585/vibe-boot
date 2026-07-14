@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibeboot.local/contracts/codegen-meta-model-v1.schema.json",
+  "title": "Vibe Boot P0 Code Generation Meta Model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entity"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "entity": {
+      "$ref": "#/$defs/entity"
+    }
+  },
+  "$defs": {
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entityName",
+        "tableName",
+        "moduleName",
+        "resourceName",
+        "displayName",
+        "description",
+        "fields",
+        "relations",
+        "permissions",
+        "pages"
+      ],
+      "properties": {
+        "entityName": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]{1,63}$"
+        },
+        "tableName": {
+          "type": "string",
+          "pattern": "^biz_[a-z][a-z0-9_]{1,59}$"
+        },
+        "moduleName": {
+          "const": "biz"
+        },
+        "resourceName": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]{1,63}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/field"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "permissions": {
+          "$ref": "#/$defs/permissions"
+        },
+        "pages": {
+          "$ref": "#/$defs/pages"
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldName",
+        "columnName",
+        "displayName",
+        "dataType",
+        "required",
+        "unique",
+        "searchable",
+        "listVisible",
+        "formVisible",
+        "dictType",
+        "defaultValue",
+        "validation",
+        "enumValues"
+      ],
+      "properties": {
+        "fieldName": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]{1,63}$"
+        },
+        "columnName": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{1,63}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "dataType": {
+          "enum": [
+            "string",
+            "text",
+            "int",
+            "long",
+            "decimal",
+            "boolean",
+            "date",
+            "datetime",
+            "enum"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "unique": {
+          "type": "boolean"
+        },
+        "searchable": {
+          "type": "boolean"
+        },
+        "listVisible": {
+          "type": "boolean"
+        },
+        "formVisible": {
+          "type": "boolean"
+        },
+        "dictType": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z][a-z0-9_.-]{2,63}$"
+        },
+        "defaultValue": {
+          "type": ["string", "null"],
+          "maxLength": 255
+        },
+        "validation": {
+          "$ref": "#/$defs/validation"
+        },
+        "enumValues": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/enumValue"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "dataType": {
+                "const": "enum"
+              }
+            },
+            "required": ["dataType"]
+          },
+          "then": {
+            "properties": {
+              "enumValues": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "enumValues": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataType": {
+                "const": "string"
+              }
+            },
+            "required": ["dataType"]
+          },
+          "then": {
+            "properties": {
+              "validation": {
+                "type": "object",
+                "properties": {
+                  "maxLength": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dataType": {
+                "const": "decimal"
+              }
+            },
+            "required": ["dataType"]
+          },
+          "then": {
+            "properties": {
+              "validation": {
+                "type": "object",
+                "properties": {
+                  "precision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 38
+                  },
+                  "scale": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minLength",
+        "maxLength",
+        "minimum",
+        "maximum",
+        "precision",
+        "scale",
+        "pattern"
+      ],
+      "properties": {
+        "minLength": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 2000
+        },
+        "maxLength": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 2000
+        },
+        "minimum": {
+          "type": ["number", "null"]
+        },
+        "maximum": {
+          "type": ["number", "null"]
+        },
+        "precision": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 38
+        },
+        "scale": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 18
+        },
+        "pattern": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "enumValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "label"],
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["list", "query", "create", "update", "delete"],
+      "properties": {
+        "list": {
+          "type": "string",
+          "pattern": "^biz:[a-z][A-Za-z0-9]{1,63}:list$"
+        },
+        "query": {
+          "type": "string",
+          "pattern": "^biz:[a-z][A-Za-z0-9]{1,63}:query$"
+        },
+        "create": {
+          "type": "string",
+          "pattern": "^biz:[a-z][A-Za-z0-9]{1,63}:create$"
+        },
+        "update": {
+          "type": "string",
+          "pattern": "^biz:[a-z][A-Za-z0-9]{1,63}:update$"
+        },
+        "delete": {
+          "type": "string",
+          "pattern": "^biz:[a-z][A-Za-z0-9]{1,63}:delete$"
+        }
+      }
+    },
+    "pages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "listPage",
+        "createForm",
+        "updateForm",
+        "detailPage",
+        "searchFields",
+        "tableColumns",
+        "rowActions",
+        "batchActions"
+      ],
+      "properties": {
+        "listPage": {
+          "const": true
+        },
+        "createForm": {
+          "const": true
+        },
+        "updateForm": {
+          "const": true
+        },
+        "detailPage": {
+          "const": false
+        },
+        "searchFields": {
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][A-Za-z0-9]{1,63}$"
+          }
+        },
+        "tableColumns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][A-Za-z0-9]{1,63}$"
+          }
+        },
+        "rowActions": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["update", "delete"]
+          }
+        },
+        "batchActions": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    }
+  }
+}

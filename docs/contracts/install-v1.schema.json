@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-boot.local/schemas/install-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "installRoot",
+    "serviceName",
+    "accessMode",
+    "bindAddress",
+    "businessPort",
+    "managementPort",
+    "allowedOrigin",
+    "openFirewall",
+    "instanceId",
+    "allowInsecureLoopback",
+    "mysql",
+    "redis",
+    "tls"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "installRoot": { "type": "string", "minLength": 4, "maxLength": 120 },
+    "serviceName": { "const": "VibeBoot" },
+    "accessMode": { "enum": ["local", "lan"] },
+    "bindAddress": { "type": "string", "minLength": 3, "maxLength": 45 },
+    "businessPort": { "type": "integer", "minimum": 1024, "maximum": 65535 },
+    "managementPort": { "const": 8081 },
+    "allowedOrigin": { "type": "string", "minLength": 10, "maxLength": 255 },
+    "openFirewall": { "type": "boolean" },
+    "instanceId": {
+      "anyOf": [
+        { "const": "GENERATE" },
+        { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" }
+      ]
+    },
+    "allowInsecureLoopback": { "type": "boolean" },
+    "mysql": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "port",
+        "database",
+        "applicationUsername",
+        "migrationUsername",
+        "tlsMode",
+        "caFile",
+        "mysqlClientBin"
+      ],
+      "properties": {
+        "host": { "type": "string", "minLength": 1, "maxLength": 253 },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "database": { "const": "vibe_boot" },
+        "applicationUsername": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{2,31}$" },
+        "migrationUsername": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{2,31}$" },
+        "tlsMode": { "enum": ["verify-identity", "disabled"] },
+        "caFile": { "type": ["string", "null"] },
+        "mysqlClientBin": { "type": "string", "minLength": 4, "maxLength": 240 }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "port", "username", "tlsEnabled", "caFile", "database"],
+      "properties": {
+        "host": { "type": "string", "minLength": 1, "maxLength": 253 },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "username": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "tlsEnabled": { "type": "boolean" },
+        "caFile": { "type": ["string", "null"] },
+        "database": { "const": 0 }
+      }
+    },
+    "tls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyStorePath"],
+      "properties": {
+        "keyStorePath": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

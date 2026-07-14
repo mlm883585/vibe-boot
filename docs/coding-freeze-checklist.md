@@ -31,17 +31,18 @@
 | 术语与命名 | 模块、目录、脚本、状态、权限和 API 命名统一 | `docs/terminology-and-naming.md` |
 | 文档维护规则 | 新增文档、修改文档、ADR 和引用同步规则明确 | `docs/documentation-maintenance-guide.md` |
 | 编码后变更控制 | 编码开始后按 C0-C4 处理新增请求、范围变化和阶段推进 | `docs/post-coding-change-control.md` |
-| 编码前读者测试结果 | 当前文档已通过一次自测式 Reader Test | `docs/pre-coding-reader-test-results.md` |
+| 编码前读者测试结果 | 第一轮独立审阅原始结论为 FAIL；十项阻塞修订后，第二轮题库和机器契约复测通过，但不替代维护者签收 | `docs/pre-coding-reader-test-results.md` |
 | 需求追踪矩阵 | 原始产品要求已映射到当前文档证据 | `docs/requirements-traceability-matrix.md` |
 | 文档验证日志 | 当前文档索引、引用、签收状态、目录状态和忽略规则已有验证快照 | `docs/documentation-verification-log.md` |
 | 编码启动签收包 | 最终人工确认入口已压缩产品、技术、AI、S1 和变更控制承诺 | `docs/coding-start-signoff-package.md` |
-| 签收仓库基线 | 进入 S1 前必须明确提交哈希；如签收未提交工作区，必须生成包含路径和 SHA256 的签收文档 manifest，未纳入签收基线的草稿不得作为编码依据 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` |
+| 签收仓库基线 | 进入 S1 前必须明确提交哈希；如签收未提交工作区，必须生成覆盖全部 Markdown、JSON Schema 和标准样例的路径/SHA256 manifest，未纳入基线的文件不得作为编码依据 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` |
 | 签收前预检命令包 | 进入 S1 前必须执行 Git 状态、README 索引、Markdown 引用、签收文档 manifest、源码目录、签收状态和忽略规则检查 | `docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` |
+| 敏感文件忽略边界 | 真实 local/prod/install 配置、`.env`、TLS/私钥和 backup 必须忽略，`.example` 模板必须可提交 | `.gitignore`、`docs/security-governance.md` |
 | 签收前最终审查表 | 进入 S1 前必须逐项确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` |
 | 文档收束规则 | 后续优先修订已有文档，新增文档必须有独立决策、证据或验收价值 | `docs/documentation-maintenance-guide.md`、`docs/coding-start-signoff-package.md` |
 | 受控发布通道 | 开发成果进入生产只能走 `build-prod.ps1`、`install.ps1`/`upgrade.ps1`、版本化迁移和健康检查 | `docs/product-constraints.md`、`docs/release-package-design.md`、`docs/s6-task-breakdown.md`、`docs/quality-gates.md` |
 | P0 文件基础 | S2 只做本地单文件白名单上传、鉴权下载、图片预览、配额和两阶段删除；不引入对象存储或业务附件 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/module-design.md`、`docs/s2-task-breakdown.md`、`docs/quality-gates.md` |
-| 开源合规边界 | 第三方依赖、runtime 和工具必须记录来源、版本、许可证、NOTICE 和依赖 manifest | `docs/product-constraints.md`、`docs/windows-devkit-design.md`、`docs/release-package-design.md`、`docs/quality-gates.md` |
+| 开源合规边界 | 开发包固定 runtime manifest/NOTICE；生产包固定 runtime manifest、依赖 manifest、NOTICE，并记录来源、版本、许可证和 SHA256 | `docs/product-constraints.md`、`docs/windows-devkit-design.md`、`docs/release-package-design.md`、`docs/quality-gates.md` |
 | 首个演示 | 客户拜访记录模块 | `docs/customer-visit-demo-spec.md`、`docs/s7-demo-acceptance.md` |
 | 不做事项 | 多租户、工作流、报表、插件市场、微服务、复杂低代码设计器 | `docs/mvp-roadmap.md` |
 
@@ -53,20 +54,30 @@
 | ORM | MyBatis-Plus 3.5.16 | `docs/adr/0001-mvp-tech-decisions.md` |
 | 数据库 | MySQL 8 | `docs/product-constraints.md`、`docs/database-baseline.md` |
 | 缓存 | Redis | `docs/product-constraints.md` |
-| 前端 | Vue 3.5.39、Vite 8.1.3、TypeScript 6.0.3、Element Plus 2.14.2 | `docs/adr/0001-mvp-tech-decisions.md` |
-| Node | Node.js 20.19+ LTS + npm | `docs/adr/0001-mvp-tech-decisions.md` |
+| 前端 | Vue 3.5.39、Vite 8.1.3、TypeScript 6.0.3、Element Plus 2.14.2、Pinia 3.0.4、Vue Router 4.6.4、Axios 1.18.1 | `docs/adr/0001-mvp-tech-decisions.md` |
+| Node | Node.js 24.x LTS（基线 24.18.0）+ npm | `docs/adr/0001-mvp-tech-decisions.md` |
 | 权限 | Sa-Token 1.45.0 | `docs/adr/0001-mvp-tech-decisions.md` |
 | 迁移 | Flyway | `docs/adr/0001-mvp-tech-decisions.md` |
 | API 文档 | Springdoc OpenAPI 2.8.17 | `docs/adr/0001-mvp-tech-decisions.md` |
 | 模板 | Velocity 2.4.1 | `docs/adr/0001-mvp-tech-decisions.md` |
-| Windows 服务 | WinSW | `docs/adr/0001-mvp-tech-decisions.md` |
+| Windows 服务 | Apache Commons Daemon Procrun 1.6.1 x64 | `docs/adr/0001-mvp-tech-decisions.md` |
 | AI 协议 | OpenAI 兼容接口优先 | `docs/adr/0001-mvp-tech-decisions.md` |
 | Lombok | P0 不引入，后端手写代码和生成代码均不得使用 Lombok 注解 | `docs/adr/0001-mvp-tech-decisions.md`、`docs/backend-implementation-spec.md` |
 | API 并发与重复提交 | P0 使用数据库唯一约束、version 乐观锁、状态条件更新和事务内关系保存；普通 CRUD 不引入 Redis 锁或通用 Idempotency-Key | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/api-conventions.md`、`docs/backend-implementation-spec.md` |
 | 请求追踪 | 后端生成 traceId，同步到统一响应体、`X-Trace-Id` 和 MDC；客户端不得覆盖 | `docs/api-conventions.md`、`docs/quality-gates.md` |
 | 密码存储 | JDK 17 PBKDF2-HMAC-SHA256/600000 次、独立 salt；不新增密码库、不使用 Sa-Token 快速摘要 | `docs/security-governance.md`、`docs/backend-implementation-spec.md` |
+| 模型凭据 | JDK AES-256-GCM 密文入库、32-byte 主密钥外置、API 只返回 `credentialConfigured`；不新增 Jasypt，不允许数据库明文 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/model-gateway-spec.md` |
 | 浏览器会话 | Sa-Token + Redis 不透明 Token、HttpOnly Cookie、CSRF/Origin 校验；P0 不使用 JWT/Token Secret 或 Web Storage | `docs/security-governance.md`、`docs/frontend-admin-spec.md` |
 | 网络暴露 | 生产 local 只回环，lan 强制 HTTPS；Actuator 固定回环管理端口 8081 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/release-package-design.md` |
+| 脚本配置 | PowerShell 5.1 只做 JSON 可读性初筛；安装配置由 Java 读取原始 bytes 并按 `install-v1.schema.json` 权威校验；Spring Boot 才解析 YAML | `docs/windows-devkit-design.md`、`docs/release-package-design.md` |
+| 生产包信任 | 首装 OS-only Authenticode + 带外 signer，再校验签名 `PACKAGE-MANIFEST.psd1` 和全文件集合；包内哈希不能自证 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/release-package-design.md` |
+| Windows 服务身份 | Procrun LocalService + service SID；安装根和子目录关闭继承并写显式 ACE，operations/data 为兄弟目录；程序/脚本/操作状态不可由服务修改 | `docs/release-package-design.md`、`docs/security-governance.md` |
+| 数据服务最小权限 | MySQL 运行/迁移账号分离，Redis ACL 绑定实例前缀，非回环连接强制 TLS | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/security-governance.md` |
+| 备份恢复 secret 边界 | 备份排除全部 secret/模型主密钥；恢复由 `clear-redis-namespace` 清理本实例 Redis，失败保持停服 | `docs/release-package-design.md`、`docs/security-governance.md` |
+| 高风险迁移与升级恢复 | 高风险放行需要开关、精确短语、operationId、列表 hash 和二次复核；state v2 覆盖九资源、维护闸门和 18 个提升中断用例 | `docs/release-package-design.md`、`docs/s7-demo-acceptance.md` |
+| 初始管理员 | Flyway 不写密码；默认交互确认，显式参数才生成一次性 24 位密码；bootstrap-admin 仅从 stdin 接收 | `docs/database-baseline.md`、`docs/release-package-design.md` |
+| P0 机器实现契约 | API/DTO/VO/权限/错误、P0 逻辑 DDL、代码生成与安装 JSON Schema/样例均已冻结并可机器校验 | `docs/api-conventions.md`、`docs/database-baseline.md`、`docs/contracts/` |
+| 阶段测试与 S7 环境 | S2-S4 完整测试不能由快速构建替代；S7 使用全新 Windows Server 2022 VM、外部 TLS 数据服务并跑完 F01-F16 | `docs/quality-gates.md`、`docs/s7-demo-acceptance.md` |
 
 ## 5. 必须冻结的 AI 使用边界
 
@@ -81,16 +92,16 @@
 | AI 工具使用路径产品化 | 首次使用有引导，工作台能输出外部 AI 交接包，企业用户不必直接懂源码 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
 | 企业用户不会 AI 工具时的托底路径 | 企业用户先用平台 AI 工作台，实施人员/开发者再使用外部 AI Coding 工具执行工程动作 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
 | AI 使用准入卡 | 每次 AI 任务先确认编码许可、任务阶段、执行入口、上下文、风险、验证和生产边界 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
-| S1 开工检查 | 签收和启动口令满足后，创建源码目录前仍必须输出 `signoffStatus`、`s1Allowed`、`launchPhraseExact`、`sourceDirsBefore`、`allowedScope`、`forbiddenScope` 和 `admissionCard.result` | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md` |
+| S1 阶段准入与开工检查 | 精确口令后先持久化 **docs/stage-records/S1-admission.md**，再输出签收、口令、准入路径、目录基线、范围和 `admissionCard.result` | `docs/s1-implementation-work-order.md`、`docs/post-coding-change-control.md`、`docs/quality-gates.md` |
 | S1 输出与关闭证据 | S1 输出摘要必须包含阶段关闭证据包；阶段关闭只申请关闭 S1，不自动授权 S2 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md` |
 | AI 能力成熟度 | A0-A2 是首版承诺，A3-A4 为 P1 增强，完整内置 Agent IDE 不做 | `docs/ai-tool-usage-guide.md` |
 | 生产业务 AI | 只做业务问答、摘要、分类、文案、分析 | `docs/ai-tool-usage-guide.md` |
-| 生产 AI 白名单 | 生产模型配置只允许业务问答、摘要、分类、文案、分析和连接测试 | `docs/security-governance.md`、`docs/release-package-design.md`、`docs/quality-gates.md` |
-| 模型数据安全 | 模型调用前必须做数据分类、最小化、脱敏、数据权限过滤和出境风险提示 | `docs/security-governance.md`、`docs/model-gateway-spec.md`、`docs/quality-gates.md` |
+| 生产 AI 白名单 | 只允许业务问答、摘要、分类、文案、分析和连接测试；开发需求澄清、项目文档问答、代码计划即使只读也禁止 | `docs/security-governance.md`、`docs/release-package-design.md`、`docs/quality-gates.md` |
+| 模型数据与出站安全 | 模型调用前必须做数据分类、最小化、脱敏、数据权限过滤和出境风险提示；API Base 固定执行 SSRF/DNS/TLS/重定向/2 MB 响应门禁 | `docs/security-governance.md`、`docs/model-gateway-spec.md`、`docs/quality-gates.md` |
 | P0 不做完整 AI IDE | 不自研完整 Agent Runtime，不提供服务端任意 shell | `docs/adr/0003-ai-tool-usage-boundary.md` |
-| 生产禁用代码修改 | 默认关闭代码生成、脚本执行、数据库结构修改 | `docs/security-governance.md` |
+| 生产禁用代码修改 | 生产包不包含代码生成、脚本执行、数据库结构修改和开发任务入口，不能由管理员重新开启 | `docs/security-governance.md` |
 | C0 授权边界 | C0 只在阶段已签收、维护者发出阶段启动指令且请求完全落在阶段任务内时成立 | `docs/post-coding-change-control.md`、`docs/coding-start-signoff-package.md` |
-| 开发工作区执行边界 | 补丁和文件写入只限开发工作区，由外部 AI Coding 工具或本地受控执行器承接，不进入生产服务端 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/adr/0003-ai-tool-usage-boundary.md`、`docs/ai-tooling-strategy.md` |
+| 开发工作区执行边界 | P0 通用补丁只由外部 AI Coding 工具承接；确定性生成器只写 owned 路径；P1 本地执行器需另行签收，生产始终禁止 | `docs/adr/0002-mvp-implementation-contracts.md`、`docs/adr/0003-ai-tool-usage-boundary.md`、`docs/ai-tooling-strategy.md` |
 | 交接包生产边界 | 外部 AI 交接包不能作为生产补丁、SQL 或 shell 执行入口 | `docs/external-ai-coding-prompt.md`、`docs/s4-task-breakdown.md`、`docs/windows-devkit-design.md` |
 | 交接包授权边界 | 外部 AI 交接包只是执行上下文，不能绕过签收状态、阶段启动口令、允许范围和质量门禁 | `docs/ai-tool-usage-guide.md`、`docs/adr/0003-ai-tool-usage-boundary.md` |
 | 高风险确认 | L2/L3 风险必须显式确认，L3 建议备份 | `docs/skill-rule-design.md` |
@@ -104,7 +115,7 @@
 | P0 单表 CRUD | 首个生成闭环只做客户拜访记录级别复杂度 | S4/S7 验收无法稳定 |
 | P1 交付闭环 | 生产包和备份恢复在 MVP 完成前跑通，但不抢 S1/S2 顺序 | MVP 无法宣称可交付 |
 | 通用导入导出延后 | Excel 导入导出、模板和错误回执属于 P2，不阻塞 S1-S7 | 需要重新审计生成范围和依赖 |
-| 生产外部 MySQL/Redis | 生产默认连接外部服务，演示包可选内置 | 安装包复杂度需要重新设计 |
+| 外部 MySQL/Redis | MySQL 始终外部；开发默认内存降级且可接外部 Redis，生产强制外部 Redis；发行包不含 Redis 可执行文件 | 安装包复杂度和第三方许可证需要重新设计 |
 | 外部 AI 工具协作 | 首版不把平台做成完整 IDE | AI 工作台范围需要重写 |
 | 质量门禁优先 | 编译、构建、脚本失败不能假装通过 | MVP 成功标准失效 |
 
@@ -166,7 +177,7 @@ S1 的完成标准见 `docs/engineering-skeleton-spec.md` 和 `docs/s1-task-brea
 | 是否接受企业用户不必懂源码，源码修改可由实施人员或开发者使用外部 AI 工具完成 | 是 |
 | 是否接受生产禁用开发型 AI | 是 |
 | 是否接受生产 AI 白名单，生产模型配置只允许业务问答、摘要、分类、文案、分析和连接测试 | 是 |
-| 是否接受模型数据安全，企业业务数据进入模型前必须分类、最小化、脱敏、权限过滤和提示出境风险 | 是 |
+| 是否接受模型数据与出站安全，企业业务数据进入模型前必须分类/最小化/脱敏/权限过滤/提示出境风险，API Base 必须执行 SSRF 门禁 | 是 |
 | 是否接受开源合规边界，第三方依赖、runtime 和工具来源、版本、许可证清单必须进入验收 | 是 |
 | 是否接受 C0 不绕过签收和阶段启动指令 | 是 |
 | 是否接受补丁和文件写入只限开发工作区，生产不得在线执行 | 是 |
@@ -196,7 +207,7 @@ S1 的完成标准见 `docs/engineering-skeleton-spec.md` 和 `docs/s1-task-brea
 | 项目 | 要求 |
 | --- | --- |
 | 签收文件 | `docs/coding-start-signoff.md` |
-| 签收基线 | 推荐使用已提交文档快照；如工作区未提交，必须在签收记录中明确 manifest 生成时间、`ManifestDocs` 数量、纳入范围和 SHA256 清单 |
+| 签收基线 | 推荐使用已提交文档快照；如工作区未提交，必须在签收记录中明确 manifest 生成时间、`ManifestFiles` 数量、纳入范围和 SHA256 清单，且覆盖 JSON Schema 与标准样例 |
 | 未签收状态 | 不允许创建源码目录，只能继续修订 `docs/` |
 | 已签收状态 | 只允许按 S1 工作令创建工程骨架 |
 | S1 开工检查 | 已签收并收到精确口令后，仍需先输出结构化开工检查；任一关键项失败时不得编码 |
@@ -210,7 +221,7 @@ S1 的完成标准见 `docs/engineering-skeleton-spec.md` 和 `docs/s1-task-brea
 | 需要新增能力 | 先判断 P0/P1/P2，再更新路线图 |
 | 技术选型要替换 | 先新增或修订 ADR |
 | S1 范围想扩大 | 先更新 `docs/s1-task-breakdown.md` 和准入审计 |
-| 用户只想试验性编码 | 可新建实验分支，但不能宣称进入正式实现阶段 |
+| 用户只想试验性编码 | 当前仓库仍不得创建源码目录；如确需技术试验，只能在仓库外独立临时目录完成，结果不得进入签收基线，采纳前先回写 ADR 并重新签收 |
 
 ## 12. 一句话总结
 
