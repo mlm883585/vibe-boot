@@ -88,7 +88,7 @@
 
 | 要求 | 当前结论 | 证据文档 | 状态 |
 | --- | --- | --- | --- |
-| 如何使用 AI 工具必须确定 | 文档口径已分层定稿：外部 AI Coding 工具 + 平台 AI 工作台 + 模型网关 + 生产业务 AI，不再作为未定问题悬空；人工签收仍未完成 | `docs/README.md`、`docs/adr/0003-ai-tool-usage-boundary.md`、`docs/ai-tooling-strategy.md`、`docs/ai-tool-usage-guide.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 需人工签收 |
+| 如何使用 AI 工具必须确定 | 文档口径已分层定稿：外部 AI Coding 工具 + 平台 AI 工作台 + 模型网关 + 生产业务 AI，不再作为未定问题悬空；已纳入 2026-07-14 签收基线 | `docs/README.md`、`docs/adr/0003-ai-tool-usage-boundary.md`、`docs/ai-tooling-strategy.md`、`docs/ai-tool-usage-guide.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 已签收 |
 | 不首版自研完整 AI IDE | P0 不替代 Codex/Cursor/Claude Code | `docs/ai-tooling-strategy.md`、`docs/ai-tool-usage-guide.md`、`docs/coding-freeze-checklist.md` | 已覆盖 |
 | 外部 AI Coding 工具是源码修改主路径 | Codex、Cursor、Claude Code、通义灵码等负责开发模式真实源码修改 | `docs/ai-tool-usage-guide.md`、`docs/external-ai-coding-prompt.md` | 已覆盖 |
 | 首次使用 AI 工具要有引导 | 用户解压、检查环境、配置模型、启动开发模式后，应知道如何让 AI 读取上下文并开始任务 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md`、`docs/coding-freeze-checklist.md` | 已覆盖 |
@@ -114,23 +114,23 @@
 
 | 要求 | 当前结论 | 证据文档 | 状态 |
 | --- | --- | --- | --- |
-| 编码前始终优先修订文档 | 当前只允许修订 `docs/`，未签收不得创建源码目录 | `docs/README.md`、`docs/coding-start-signoff.md` | 需人工签收 |
+| 编码前始终优先修订文档 | 已签收但未收到启动口令，当前仍只允许修订 `docs/`，不得创建源码目录 | `docs/README.md`、`docs/coding-start-signoff.md` | 已签收 |
 | 形成产品约束后再编码 | 产品、技术、AI、交付、安全、质量、变更控制均已有约束文档 | `docs/product-constraints.md`、`docs/documentation-readiness-review.md` | 已覆盖 |
-| 当前方案是否已经满足编码 | 技术约束修订后可进入人工签收，但不满足直接编码；仍缺签收基线、最终审查确认、签收记录、精确口令、S1 stageAdmission 和开工检查 | `docs/coding-start-signoff-package.md`、`docs/implementation-readiness-audit.md`、`docs/coding-start-signoff.md` | 需人工签收 |
-| S1 只做工程骨架 | 签收后也只能创建工程骨架，不得实现业务 | `docs/s1-implementation-work-order.md`、`docs/s1-task-breakdown.md` | 需人工签收 |
-| S1 工作令不是开工许可 | 工作令只是施工说明，签收记录和精确启动口令 `开始 S1 工程骨架编码` 才是授权来源；口令不得带句号、冒号或额外后缀 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
-| S1 创建源码目录前必须先持久化准入并开工检查 | 精确口令后先写 **docs/stage-records/S1-admission.md**，再输出签收、口令、准入路径、目录基线、范围和 `admissionCard.result`；任一失败不得编码 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 需人工签收 |
-| 签收仓库基线必须明确 | 进入 S1 前必须明确提交哈希；如签收未提交工作区，必须生成包含路径和 SHA256 的签收文档 manifest；未纳入签收基线的草稿不得作为编码依据 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
-| 签收前预检必须可执行 | 进入 S1 前必须复查 Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON 机器契约、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式；任一失败不得签收 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` | 需人工签收 |
-| 签收前最终审查必须逐项确认 | 进入 S1 前必须确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制；`docs/coding-start-signoff.md` 第 4 节必须包含并签收“签收前最终审查表已逐项确认”；最终审查表不能替代正式签收 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/implementation-readiness-audit.md` | 需人工签收 |
-| 模糊表达不能等价签收 | “同意”“可以开始”“按文档做”等表达不构成签收；等价确认必须包含签收包接受、S1 范围、最终审查表全部确认、全部签收项、签收人、签收日期和签收基线 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/pre-coding-reader-test.md`、`docs/coding-freeze-checklist.md` | 需人工签收 |
+| 当前方案是否已经满足编码 | 已完成维护者签收，但不满足直接编码；仍缺精确启动口令、S1 `stageAdmission` 和开工检查 | `docs/coding-start-signoff-package.md`、`docs/implementation-readiness-audit.md`、`docs/coding-start-signoff.md` | 待启动 |
+| S1 只做工程骨架 | 已签收只允许创建工程骨架，不得实现业务 | `docs/s1-implementation-work-order.md`、`docs/s1-task-breakdown.md` | 已签收 |
+| S1 工作令不是开工许可 | 工作令只是施工说明；当前仍需精确启动口令 `开始 S1 工程骨架编码`，且口令不得带句号、冒号或额外后缀 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/coding-freeze-checklist.md` | 待启动 |
+| S1 创建源码目录前必须先持久化准入并开工检查 | 精确口令后先写 **docs/stage-records/S1-admission.md**，再输出签收、口令、准入路径、目录基线、范围和 `admissionCard.result`；任一失败不得编码 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/quality-gates.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 待启动 |
+| 签收仓库基线必须明确 | 已签收提交 `5107e56c58c200966f491bdbb9058cce3c452573`；未纳入该提交的草稿不得作为编码依据 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/coding-freeze-checklist.md` | 已签收 |
+| 签收前预检必须可执行 | 已于 2026-07-14 复查 Git 状态、索引与编号、引用与表格、JSON 机器契约、manifest、源码目录、签收状态、忽略规则和 Git 差异格式，结果通过 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/documentation-maintenance-guide.md`、`docs/documentation-verification-log.md` | 已签收 |
+| 签收前最终审查必须逐项确认 | 维护者已确认产品范围、技术栈、Windows 优先、AI 分层、安全、合规、发布、S1 范围和变更控制，并签收本文要求的全部项目 | `docs/README.md`、`docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md`、`docs/implementation-readiness-audit.md` | 已签收 |
+| 模糊表达不能等价签收 | 本次协作记录已完整包含签收包接受、S1 范围、最终审查表、全部签收项、签收人、日期和基线 | `docs/coding-start-signoff.md`、`docs/coding-start-signoff-package.md`、`docs/pre-coding-reader-test.md`、`docs/coding-freeze-checklist.md` | 已签收 |
 | S2-S7 阶段任务分解不是开工许可 | 阶段任务文档只是施工依据，必须前置阶段完成、通过门禁，并由维护者明确启动对应阶段 | `docs/s2-task-breakdown.md`、`docs/s3-task-breakdown.md`、`docs/s4-task-breakdown.md`、`docs/s5-task-breakdown.md`、`docs/s6-task-breakdown.md`、`docs/s7-demo-acceptance.md` | 已覆盖 |
 | 编码后仍文档优先 | 新请求按 C0-C4 判断，超范围先回文档或 ADR | `docs/post-coding-change-control.md` | 已覆盖 |
 | 阶段完成必须有关闭证据包 | 每个阶段完成必须记录交付物、验证结果、越界检查、文档同步、残余风险和下一阶段请求；证据包不自动授权下一阶段 | `docs/post-coding-change-control.md`、`docs/quality-gates.md`、`docs/mvp-roadmap.md` | 已覆盖 |
 | S1 输出摘要必须包含关闭证据包 | S1 完成摘要必须把开工检查、准入卡、交付物、验证、越界检查、文档同步、残余风险和下一阶段请求串成可复查证据 | `docs/s1-implementation-work-order.md`、`docs/external-ai-coding-prompt.md`、`docs/s1-task-breakdown.md`、`docs/quality-gates.md` | 已覆盖 |
-| C0 不绕过签收和阶段启动 | C0 只有阶段已签收、维护者发出阶段启动指令且请求完全落在阶段任务内时成立；未签收时只允许修订文档 | `docs/post-coding-change-control.md`、`docs/coding-start-signoff-package.md`、`docs/external-ai-coding-prompt.md`、`docs/s1-implementation-work-order.md` | 需人工签收 |
+| C0 不绕过签收和阶段启动 | 当前已签收但尚未启动，C0 仍不成立；只有维护者发出阶段启动指令且请求完全落在阶段任务内时才成立 | `docs/post-coding-change-control.md`、`docs/coding-start-signoff-package.md`、`docs/external-ai-coding-prompt.md`、`docs/s1-implementation-work-order.md` | 已签收 |
 | 质量门禁不能替代变更授权 | 构建或测试通过只能证明可运行，不能把 C2-C4 越界请求变成 C0 | `docs/post-coding-change-control.md`、`docs/quality-gates.md`、`docs/coding-start-signoff.md`、`docs/pre-coding-reader-test.md` | 已覆盖 |
-| 最终签收入口 | 签收包已汇总最终承诺，签收状态仍以签收记录为准 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 需人工签收 |
+| 最终签收入口 | 签收包承诺已接受，签收人、日期和基线已写入签收记录 | `docs/coding-start-signoff-package.md`、`docs/coding-start-signoff.md` | 已签收 |
 
 ## 9. 未完成但不阻塞 S1 签收准备的实现验证
 
@@ -152,16 +152,16 @@
 | --- | --- |
 | 原始产品要求是否有文档证据 | 是 |
 | 是否还有必须先补的产品约束文档 | 暂未发现 |
-| 当前方案是否已经满足编码 | 否，只满足签收前审查；仍需预检、签收基线、最终审查确认、签收记录、精确启动口令和 S1 开工检查 |
-| 是否可以直接开始编码 | 否，仍需签收 |
-| 未签收前允许做什么 | 继续修订和审计文档 |
-| 签收依据是什么 | 必须是明确提交哈希；如签收未提交工作区，必须是签收文档 manifest 的生成时间、文件数量、纳入范围和 SHA256 清单，并覆盖 Markdown 与 JSON 机器契约 |
-| 签收前要跑什么预检 | Git 状态、README 索引与编号、Markdown 引用与表格结构、JSON Schema/样例及内嵌副本、签收文档 manifest、源码目录、签收状态、忽略规则和 Git 差异格式 |
-| 签收前还要确认什么 | 必须逐项确认签收包第 3.2 节最终审查表；不能用模糊同意替代 |
+| 当前方案是否已经满足编码 | 已完成签收，但尚不满足实际开工；仍需精确启动口令、S1 `stageAdmission` 和开工检查 |
+| 是否可以直接开始编码 | 否，尚未收到精确启动口令 |
+| 签收后、启动前允许做什么 | 继续修订和审计文档，或等待维护者发出精确启动口令 |
+| 签收依据是什么 | 已提交文档快照 `5107e56c58c200966f491bdbb9058cce3c452573` |
+| 签收前预检是否完成 | 是，2026-07-14 已重跑并通过 |
+| 签收前最终审查是否完成 | 是，维护者已确认签收包第 3.2 节全部审查域 |
 | 签收后第一步是什么 | 在维护者明确说出精确启动口令 `开始 S1 工程骨架编码` 后，先输出 S1 开工检查；通过后才只能按 S1 工作令做工程骨架 |
 | 阶段怎么结束 | 必须输出阶段关闭证据包；证据包通过后只是申请关闭当前阶段，不能自动进入下一阶段 |
 | S1 完成摘要必须包含什么 | 开工检查、AI 使用准入卡、变更摘要、任务状态、验证结果、越界检查、阶段关闭证据包、风险和下一步 |
-| C0 是否可以绕过未签收状态 | 否，未签收或阶段未启动时 C0 不成立 |
+| C0 是否可以绕过未启动状态 | 否，当前虽已签收但阶段未启动，C0 仍不成立 |
 | 补丁或写入文件是否可以在服务端或生产执行 | 否，只限开发工作区；生产只接收受控安装包和迁移流程 |
 | 外部 AI 交接包是否可以直接在生产执行 | 否，交接包只是开发和实施交接输入 |
 | 是否可以复制开发源码或开发数据库到生产作为发布方式 | 否，生产发布必须走 build-prod、install/upgrade 和版本化迁移 |

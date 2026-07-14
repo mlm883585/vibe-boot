@@ -4,7 +4,7 @@
 
 本文对 Vibe Boot 当前编码前文档体系做一次可复查审计，判断现有文档是否足以支撑后续从 S1 工程骨架开始编码。
 
-本文不是新的需求来源，也不是替代 `docs/implementation-readiness-audit.md`。它的作用是把“文档是否齐、约束是否清楚、仍需人工确认什么、哪些事情还不能做”整理成一份审计结论，供正式进入编码前复核。
+本文不是新的需求来源，也不是替代 `docs/implementation-readiness-audit.md`。它的作用是把“文档是否齐、约束是否清楚、人工确认结果、哪些事情还不能做”整理成一份审计结论，供正式进入编码前复核。
 
 审计日期：2026-07-14。
 
@@ -33,7 +33,7 @@
 | S7 演示 | 通过 | 客户拜访记录端到端剧本、全新 Windows Server 2022 VM 基线和 F01-F16 故障矩阵已成文 |
 | 编码冻结 | 需人工确认 | `docs/coding-freeze-checklist.md`、签收文档 manifest 和签收前最终审查表需要维护者逐项确认 |
 
-结论：文档层面已经足以支撑 **S1 工程骨架编码准备**，但正式开工前仍需人工确认 P0/P1 范围冻结、Windows 优先、技术栈克制、签收基线、签收前最终审查表和 S1 起步策略。
+结论：文档层面已经足以支撑 **S1 工程骨架编码准备**，维护者也已确认 P0/P1 范围冻结、Windows 优先、技术栈克制、签收基线、签收前最终审查表和 S1 起步策略；正式开工仍需精确启动口令和阶段准入。
 
 ## 3. 文档完整性审计
 
@@ -65,15 +65,15 @@
 | 安全治理 | `docs/security-governance.md` | 已存在 |
 | MVP 路线 | `docs/mvp-roadmap.md` | 已存在 |
 | 准入与冻结 | `docs/implementation-readiness-audit.md`、`docs/coding-freeze-checklist.md` | 已存在 |
-| 编码启动签收 | `docs/coding-start-signoff.md` | 已存在，当前未签收 |
+| 编码启动签收 | `docs/coding-start-signoff.md` | 已存在，已由 `mlm883585` 于 2026-07-14 签收 |
 | S1/S2 | `docs/s1-implementation-work-order.md`、`docs/engineering-skeleton-spec.md`、`docs/s1-task-breakdown.md`、`docs/basic-admin-spec.md`、`docs/s2-task-breakdown.md` | 已存在 |
 | 演示验收 | `docs/customer-visit-demo-spec.md`、`docs/s7-demo-acceptance.md` | 已存在 |
 
-## 4. 已收敛待签收决策
+## 4. 已收敛并签收决策
 
-本节表示文档口径已经收敛，可以作为签收依据；在 `docs/coding-start-signoff.md` 未签收且维护者未发出启动口令前，不代表当前允许编码。
+本节文档口径已经收敛并纳入签收基线；在维护者未另行发出精确启动口令前，仍不代表当前允许编码。
 
-| 决策域 | 待签收口径 | 证据 |
+| 决策域 | 已签收口径 | 证据 |
 | --- | --- | --- |
 | 首版平台 | Windows 优先 | `docs/product-constraints.md`、`docs/windows-devkit-design.md` |
 | 架构形态 | 模块化单体 | `docs/vibe-boot-architecture.md`、`docs/module-design.md` |
@@ -85,7 +85,7 @@
 | 模板引擎 | Velocity 2.4.1 | ADR-0001 |
 | Lombok | P0 不引入，Java 类和生成模板使用显式 getter/setter 或 Java 原生能力 | ADR-0001、`docs/backend-implementation-spec.md` |
 | AI 工具边界 | 外部 AI Coding 工具 + 平台内 AI 工作台 + 生产业务 AI | ADR-0003 |
-| AI 工具当前状态 | “如何使用 AI 工具”已分层定稿，不再作为未定问题悬空；仍需人工签收后才能实现 | `docs/ai-tooling-strategy.md`、`docs/ai-tool-usage-guide.md` |
+| AI 工具当前状态 | “如何使用 AI 工具”已分层定稿并纳入签收基线；仍需阶段启动后才能实现 | `docs/ai-tooling-strategy.md`、`docs/ai-tool-usage-guide.md` |
 | AI 用户入口 | 维护者用外部 AI Coding 工具，企业用户用平台 AI 工作台，生产用户只用业务 AI | `docs/ai-tool-usage-guide.md` |
 | AI 使用路径产品化 | 首次使用有引导，工作台能输出外部 AI 交接包，企业用户不必懂源码，A0-A2 是 MVP 必须满足 | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
 | AI 工具责任边界 | 企业用户确认业务，平台组织上下文和交接包，实施人员/开发者使用外部 AI Coding 工具，生产只保留业务 AI | `docs/ai-tool-usage-guide.md`、`docs/product-constraints.md` |
@@ -117,9 +117,9 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 引入额外中间件 | 违反技术栈克制 |
 | 创建 P2/P2+ 预留模块 | `vibe-workflow`、`vibe-report`、`vibe-message`、`vibe-integration` 不进入 S1 |
 
-## 6. 仍需人工确认
+## 6. 人工确认结果
 
-| 确认项 | 建议结论 | 不确认的风险 |
+| 确认项 | 签收结论 | 不确认的风险 |
 | --- | --- | --- |
 | 是否冻结 P0/P1 范围 | 确认冻结 | 编码中继续扩范围 |
 | 是否接受 Windows 优先 | 确认接受 | 被 Linux/Docker 兼容性牵走 |
@@ -133,7 +133,7 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 是否接受补丁和文件写入只限开发工作区 | 确认接受 | 把平台生成能力误解成服务端任意文件写入或生产在线改源码 |
 | 是否接受外部 AI 交接包不能作为生产执行入口 | 确认接受 | 把交接包误用为生产补丁、SQL 或 shell 脚本 |
 | 是否接受受控发布通道 | 确认接受 | 复制源码、复制开发库、执行交接包或手工 SQL 进入生产，破坏交付安全和升级可追踪 |
-| 是否接受 AI 使用口径只是编码前签收依据，不是当前实现许可 | 确认接受 | 未签收状态下误建源码目录或实现 AI 工作台 |
+| 是否接受 AI 使用口径只是编码前签收依据，不是当前实现许可 | 确认接受 | 未启动状态下误建源码目录或实现 AI 工作台 |
 | 是否接受 S1 只搭工程骨架 | 确认接受 | 第一轮就混入业务功能 |
 | 是否接受 S1 完成必须有阶段关闭证据包，且不能自动进入 S2 | 确认接受 | S1 总结被误解为下一阶段授权 |
 | 是否接受生产禁用开发型 AI | 确认接受 | 生产安全边界不清 |
@@ -148,11 +148,11 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 是否确认签收仓库基线 | 确认提交哈希或签收文档 manifest | 未提交工作区文档范围不可复查，外部 AI 可能使用未确认草稿 |
 | 是否确认签收前最终审查表 | 确认签收包第 3.2 节全部审查域 | 维护者可能只确认“能跑代码”，却没有接受产品、技术、AI、安全、合规、发布和变更控制取舍 |
 | 是否排除模糊签收 | 确认“同意”“可以开始”“按文档做”等表达不构成签收 | 模糊表达被误解为编码许可 |
-| 是否通过编码前读者测试 | 确认通过 | 新维护者或 AI 可能误以为未签收也能编码 |
+| 是否通过编码前读者测试 | 确认通过 | 新维护者或 AI 可能误以为已签收即可跳过启动口令 |
 
 ## 7. 风险残余
 
-本节的“不阻塞”只表示不阻塞 S1 签收准备，不表示当前已经允许编码。是否允许开始 S1 仍以 `docs/coding-start-signoff.md` 和启动口令为准。
+本节保留签收前风险审计口径。“不阻塞”只表示当时不阻塞 S1 签收；当前是否允许开始 S1 仍以 `docs/coding-start-signoff.md`、启动口令和阶段准入记录为准。
 
 | 风险 | 当前处理 | 是否阻塞 S1 签收准备 |
 | --- | --- | --- |
@@ -179,7 +179,7 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 | 问题 | 结论 |
 | --- | --- |
 | 是否可以直接开始完整产品编码 | 否 |
-| 是否可以开始 S1 工程骨架编码准备 | 只可以准备签收；未签收且未获得精确启动口令 `开始 S1 工程骨架编码` 前不得创建源码目录 |
+| 是否可以开始 S1 工程骨架编码准备 | 已完成签收，只可准备启动；未获得精确启动口令 `开始 S1 工程骨架编码` 前不得创建源码目录 |
 | 是否可以跳到 S2/S3/S4 | 否 |
 | 是否可以新增技术依赖 | 否，先更新 ADR 或产品约束 |
 | 是否可以提交当前文档体系 | 可以提交文档变更，前提是维护者接受当前范围和未提交文件清单；提交文档不等于允许编码 |
@@ -188,20 +188,11 @@ S1 只允许建立工程骨架，不允许顺手实现业务功能。
 
 | 顺序 | 动作 |
 | --- | --- |
-| 1 | 维护者阅读 `docs/coding-freeze-checklist.md` 并确认冻结项 |
-| 2 | 按 `docs/pre-coding-reader-test.md` 做一次读者测试 |
-| 3 | 阅读 `docs/pre-coding-reader-test-results.md`，确认当前测试结果 |
-| 4 | 阅读 `docs/post-coding-change-control.md`，确认编码后新增请求的处理方式 |
-| 5 | 阅读 `docs/requirements-traceability-matrix.md`，确认原始要求已有文档证据 |
-| 6 | 阅读 `docs/documentation-verification-log.md`，确认当前检查结果 |
-| 7 | 如签收未提交工作区，生成签收文档 manifest 并确认文件数量、纳入范围和 SHA256 清单，确保包含 JSON 机器契约 |
-| 8 | 阅读 `docs/coding-start-signoff-package.md`，确认是否接受最终承诺，并逐项确认第 3.2 节最终审查表 |
-| 9 | 更新 `docs/coding-start-signoff.md`，或按其等价确认字段完整确认；“同意”“可以开始”等模糊表达不算签收 |
-| 10 | 如接受冻结，提交当前文档变更 |
-| 11 | 签收并获得精确启动口令 `开始 S1 工程骨架编码` 后，先持久化 S1 stageAdmission 并输出开工检查，再从 `docs/s1-implementation-work-order.md`、`docs/engineering-skeleton-spec.md` 和 `docs/s1-task-breakdown.md` 开始 S1 编码 |
-| 12 | 每完成一个 S1 任务，按 `docs/quality-gates.md` 记录验证结果；S1 完成时输出阶段关闭证据包 |
-| 13 | 任何扩范围动作先按 C0-C4 判断，再回到文档和 ADR |
+| 1 | 提交并推送本次签收记录，保持远端 `main` 可复查 |
+| 2 | 维护者在签收落库后另行发出精确启动口令 `开始 S1 工程骨架编码` |
+| 3 | 收到口令后先持久化 S1 `stageAdmission` 并输出开工检查，通过后才创建源码目录 |
+| 4 | 按 S1 工作令实施并记录验证与阶段关闭证据；任何扩范围动作继续按 C0-C4 处理 |
 
 ## 10. 一句话总结
 
-Vibe Boot 当前文档已经把“为什么做、做什么、不做什么、怎么开工、如何验证、如何防止 AI 失控”讲清楚了；下一步不是继续堆功能想法，而是人工确认冻结清单、完成签收记录，并在启动口令明确后再从 S1 工程骨架小步开始。
+Vibe Boot 当前文档和人工签收均已完成；下一步是在签收记录提交后由维护者另行发出精确启动口令，再通过阶段准入与开工检查，从 S1 工程骨架小步开始。
