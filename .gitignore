@@ -1,5 +1,12 @@
 reference/
 
+runtime/
+data/
+logs/
+package/
+config/*local*
+config/*.local.*
+
 .idea/
 .vscode/
 target/
