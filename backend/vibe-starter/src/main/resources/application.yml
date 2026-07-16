@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: vibe-boot
+  profiles:
+    active: ${VIBE_PROFILE:dev}
+  config:
+    import: optional:file:../config/application-local.yml
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  shutdown: graceful
+
+management:
+  server:
+    address: 127.0.0.1
+    port: ${VIBE_MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
+
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8

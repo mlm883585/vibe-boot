@@ -1,0 +1,20 @@
+server:
+  address: ${VIBE_SERVER_ADDRESS:127.0.0.1}
+  port: ${VIBE_SERVER_PORT:8080}
+
+# S1 仅保留连接占位，不加载 JDBC、Redis、Sa-Token 或 Flyway 自动配置。
+spring:
+  datasource:
+    url: ${VIBE_DB_URL:jdbc:mysql://127.0.0.1:3306/vibe_boot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${VIBE_DB_USERNAME:vibe_boot}
+    password: ${VIBE_DB_PASSWORD:}
+  data:
+    redis:
+      host: ${VIBE_REDIS_HOST:127.0.0.1}
+      port: ${VIBE_REDIS_PORT:6379}
+      password: ${VIBE_REDIS_PASSWORD:}
+
+logging:
+  level:
+    root: INFO
+    com.vibeboot: INFO
